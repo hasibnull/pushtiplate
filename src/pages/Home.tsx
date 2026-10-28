@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Camera, Check, Images, Lock, Search, Volume2 } from 'lucide-react';
 import { getAge, setAge, setPlate, isDemo } from '../lib/store';
 import { SAMPLES } from '../lib/demo';
 import { downscale, analyzePlate } from '../lib/api';
@@ -10,6 +11,12 @@ const AGES = [
   { label: '৬–১১ মাস', months: 9 },
   { label: '১২–১৭ মাস', months: 14 },
   { label: '১৮–২৩ মাস', months: 20 },
+];
+
+const STEPS = [
+  { icon: Camera, text: 'থালার ছবি তুলুন' },
+  { icon: Search, text: 'খাবার খুঁজছি…' },
+  { icon: Volume2, text: 'শুনুন' },
 ];
 
 type Phase = 'idle' | 'uploading' | 'analysing' | 'error';
@@ -73,7 +80,7 @@ export default function Home() {
 
   if (phase === 'uploading' || phase === 'analysing') {
     return (
-      <div className="px-4">
+      <div className="px-4 lg:px-8">
         <AnalysingOverlay
           photoUrl={localPhoto ?? ''}
           text={phase === 'uploading' ? 'ছবি পাঠানো হচ্ছে…' : slow ? 'আরেকটু অপেক্ষা করুন…' : 'খাবার খুঁজছি…'}
@@ -83,92 +90,121 @@ export default function Home() {
   }
 
   return (
-    <div className="px-4 py-5 flex flex-col gap-5">
-      <div>
-        <p className="text-lg font-semibold text-leaf mb-2">শিশুর বয়স কত?</p>
-        <div className="flex gap-2">
-          {AGES.map((a) => (
-            <button
-              key={a.label}
-              onClick={() => pickAge(a.months)}
-              className={`flex-1 min-h-14 rounded-2xl text-lg font-semibold border-2 ${
-                age === a.months
-                  ? 'bg-primary text-white border-primary'
-                  : 'bg-white text-ink border-primary/30'
-              }`}
-            >
-              {a.label}
-            </button>
-          ))}
+    <div className="px-4 lg:px-8 py-5 lg:py-12 grid gap-8 lg:grid-cols-2 lg:gap-12 lg:items-start">
+      {/* Left: intro + how it works (desktop hero) */}
+      <section className="hidden lg:flex flex-col gap-6 lg:pt-4">
+        <div>
+          <h1 className="text-4xl lg:text-5xl font-bold text-leaf leading-tight">পুষ্টি থালা</h1>
+          <p className="text-lg text-ink/70 mt-1">আজকের থালা, কালকের শক্তি</p>
         </div>
-      </div>
+        <ol className="flex flex-col gap-3">
+          {STEPS.map((s, i) => (
+            <li
+              key={s.text}
+              className="flex items-center gap-4 bg-white rounded-3xl shadow-sm px-4 py-3 min-h-16"
+            >
+              <span className="w-11 h-11 shrink-0 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                <s.icon size={24} aria-hidden />
+              </span>
+              <span className="font-semibold text-lg">{s.text}</span>
+              <span className="ml-auto w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center shrink-0">
+                <Check size={16} aria-hidden />
+              </span>
+              <span className="sr-only">{i + 1}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="hidden lg:flex text-sm text-ink/70 items-center gap-2">
+          <Lock size={16} aria-hidden /> শুধু থালার ছবি তুলুন — শিশুর ছবি নয়।
+        </p>
+      </section>
 
-      <button
-        onClick={() => cameraRef.current?.click()}
-        className="w-full h-24 rounded-[20px] bg-primary text-white text-2xl font-bold shadow-lg flex items-center justify-center gap-3"
-      >
-        <span className="text-4xl">📷</span> থালার ছবি তুলুন
-      </button>
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-      />
-      <button
-        onClick={() => galleryRef.current?.click()}
-        className="w-full min-h-14 rounded-[20px] border-2 border-primary text-primary text-lg font-semibold bg-white"
-      >
-        গ্যালারি থেকে ছবি নিন
-      </button>
-      <input
-        ref={galleryRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-      />
+      {/* Right: camera / upload card */}
+      <section className="bg-white rounded-3xl shadow-lg p-4 lg:p-6 flex flex-col gap-5">
+        <div>
+          <p className="text-lg font-semibold text-leaf mb-3">শিশুর বয়স কত?</p>
+          <div className="flex gap-2">
+            {AGES.map((a) => (
+              <button
+                key={a.label}
+                onClick={() => pickAge(a.months)}
+                className={`btn-press flex-1 min-h-14 rounded-2xl text-lg font-semibold border-2 transition-colors ${
+                  age === a.months
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white text-ink border-primary/30 hover:border-primary'
+                }`}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-      {phase === 'error' && (
         <button
-          onClick={() => pendingFile.current && handleFile(pendingFile.current)}
-          className="w-full min-h-14 rounded-[20px] bg-amber-warm text-ink text-lg font-bold"
+          onClick={() => cameraRef.current?.click()}
+          className="btn-press btn-lift w-full h-24 rounded-3xl bg-primary text-white text-2xl font-bold shadow-lg flex items-center justify-center gap-3"
         >
-          আবার চেষ্টা করুন
+          <Camera size={38} aria-hidden /> থালার ছবি তুলুন
         </button>
-      )}
+        <input
+          ref={cameraRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+        />
+        <button
+          onClick={() => galleryRef.current?.click()}
+          className="btn-press btn-lift w-full min-h-14 rounded-3xl border-2 border-primary text-primary text-lg font-semibold bg-white flex items-center justify-center gap-2"
+        >
+          <Images size={24} aria-hidden /> গ্যালারি থেকে ছবি নিন
+        </button>
+        <input
+          ref={galleryRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+        />
 
-      <p className="text-sm text-ink/70 flex items-center gap-2">
-        <span>🔒</span> শুধু থালার ছবি তুলুন — শিশুর ছবি নয়।
-      </p>
+        {phase === 'error' && (
+          <button
+            onClick={() => pendingFile.current && handleFile(pendingFile.current)}
+            className="btn-press w-full min-h-14 rounded-3xl bg-amber-warm text-ink text-lg font-bold"
+          >
+            আবার চেষ্টা করুন
+          </button>
+        )}
 
-      <div>
-        <p className="text-lg font-semibold text-leaf mb-2">নমুনা থালা দেখুন</p>
-        <div className="grid grid-cols-3 gap-2">
-          {(Object.keys(SAMPLES) as (keyof typeof SAMPLES)[]).map((key) => (
-            <button
-              key={key}
-              onClick={() => onSample(key)}
-              className="rounded-2xl overflow-hidden bg-white shadow min-h-14"
-              aria-label={`নমুনা ${key}`}
-            >
-              <img
-                src={SAMPLES[key].photoUrl}
-                alt=""
-                className="w-full aspect-square object-cover"
-                onError={(e) => ((e.target as HTMLImageElement).style.opacity = '0.25')}
-              />
-            </button>
-          ))}
+        <p className="lg:hidden text-sm text-ink/70 flex items-center gap-2">
+          <Lock size={16} aria-hidden /> শুধু থালার ছবি তুলুন — শিশুর ছবি নয়।
+        </p>
+
+        <div>
+          <p className="text-lg font-semibold text-leaf mb-3">নমুনা থালা দেখুন</p>
+          <div className="grid grid-cols-3 gap-3">
+            {(Object.keys(SAMPLES) as (keyof typeof SAMPLES)[]).map((key) => (
+              <button
+                key={key}
+                onClick={() => onSample(key)}
+                className="btn-press rounded-3xl overflow-hidden bg-white shadow min-h-14 ring-1 ring-black/5"
+                aria-label={`নমুনা ${key}`}
+              >
+                <img
+                  src={SAMPLES[key].photoUrl}
+                  alt=""
+                  className="w-full aspect-square object-cover"
+                  onError={(e) => ((e.target as HTMLImageElement).style.opacity = '0.25')}
+                />
+              </button>
+            ))}
+          </div>
+          {isDemo() && <p className="text-xs mt-2 text-ink/60">DEMO চালু আছে</p>}
         </div>
-        {isDemo() && <p className="text-xs mt-1 text-ink/60">DEMO চালু আছে</p>}
-      </div>
 
-      <p className="text-center text-sm text-ink/60 mt-2">
-        WHO/UNICEF খাদ্য-বৈচিত্র্য নিয়ম অনুসারে
-      </p>
+        <p className="text-center text-sm text-ink/60">WHO/UNICEF খাদ্য-বৈচিত্র্য নিয়ম অনুসারে</p>
+      </section>
     </div>
   );
 }

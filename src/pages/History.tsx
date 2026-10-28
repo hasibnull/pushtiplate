@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { UtensilsCrossed } from 'lucide-react';
 import { fetchAudits, signedUrlFor, type AuditRow } from '../lib/supabase';
 import { PRIORITY, toBangla } from '../lib/scoring';
+import FoodIcon from '../components/FoodIcon';
 
 export default function History() {
   const [rows, setRows] = useState<AuditRow[]>([]);
@@ -21,29 +23,46 @@ export default function History() {
   }, []);
 
   return (
-    <div className="px-4 py-5">
-      <h1 className="text-2xl font-bold text-leaf mb-4">আগের থালা</h1>
+    <div className="px-4 lg:px-8 py-5 lg:py-10">
+      <h1 className="text-3xl font-bold text-leaf mb-5">আগের থালা</h1>
       {loaded && rows.length === 0 && (
         <p className="text-center text-lg text-ink/70 py-10">এখনো কোনো থালা দেখা হয়নি</p>
       )}
-      <div className="flex flex-col gap-3">
-        {rows.map((r) => {
+      {!loaded && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-hidden>
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="shimmer rounded-3xl min-h-24" />
+          ))}
+        </div>
+      )}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {rows.map((r, i) => {
           const food = PRIORITY.find((p) => p.group === r.food_to_add);
           return (
-            <div key={r.id} className="bg-white rounded-[20px] shadow p-3 flex items-center gap-3 min-h-[72px]">
+            <article
+              key={r.id}
+              style={{ animationDelay: `${i * 60}ms` }}
+              className="tile-pop bg-white rounded-3xl shadow-sm p-3 flex items-center gap-3 min-h-[88px]"
+            >
               {thumbs[r.id] ? (
-                <img src={thumbs[r.id]} alt="" className="w-16 h-16 rounded-xl object-cover" />
+                <img src={thumbs[r.id]} alt="" className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl object-cover shrink-0" />
               ) : (
-                <div className="w-16 h-16 rounded-xl bg-cream flex items-center justify-center text-2xl">🍽️</div>
+                <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-cream text-leaf flex items-center justify-center shrink-0">
+                  <UtensilsCrossed size={28} aria-hidden />
+                </div>
               )}
-              <div className="flex-1">
-                <p className="font-semibold">{new Date(r.created_at).toLocaleDateString('bn-BD')}</p>
-                {food && <p className="text-sm text-ink/70">কাল: {food.icon} {food.bangla}</p>}
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold truncate">{new Date(r.created_at).toLocaleDateString('bn-BD')}</p>
+                {food && (
+                  <p className="text-sm text-ink/60 flex items-center gap-1.5 mt-0.5">
+                    কাল: <FoodIcon group={food.group} size={17} className="text-amber-warm" /> {food.bangla}
+                  </p>
+                )}
               </div>
-              <span className="bg-primary/10 text-leaf font-bold rounded-full px-3 py-1.5">
+              <span className="bg-primary/10 text-leaf font-bold rounded-full px-3 py-1.5 shrink-0">
                 {toBangla(r.score)}/{toBangla(8)}
               </span>
-            </div>
+            </article>
           );
         })}
       </div>
