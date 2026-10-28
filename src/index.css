@@ -90,11 +90,30 @@ html, body {
 }
 .added-glow { animation: added-glow 1.8s ease-in-out infinite; }
 
-/* ---------- buttons ---------- */
+/* ---------- buttons / elevation / focus ---------- */
 .btn-press { transition: transform 0.12s ease, box-shadow 0.2s ease, filter 0.2s ease; }
 .btn-press:active { transform: scale(0.97); }
 @media (hover: hover) and (min-width: 1024px) {
   .btn-lift:hover { transform: translateY(-2px); filter: brightness(1.03); }
+}
+
+/* One consistent elevation system */
+.elev-card {
+  box-shadow: 0 1px 2px rgba(31, 41, 55, 0.05), 0 10px 30px -12px rgba(20, 83, 45, 0.18);
+  transition: transform 0.18s ease, box-shadow 0.22s ease;
+}
+@media (hover: hover) {
+  a.elev-card:hover, button.elev-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 2px 4px rgba(31, 41, 55, 0.06), 0 18px 38px -12px rgba(20, 83, 45, 0.28);
+  }
+}
+
+:focus { outline: none; }
+:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 @media (prefers-reduced-motion: reduce) {

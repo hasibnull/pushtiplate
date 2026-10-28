@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Camera, Check, Images, Lock, Search, Volume2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { BookOpen, Camera, Check, Images, Lock, Search, Volume2 } from 'lucide-react';
 import { getAge, setAge, setPlate, isDemo } from '../lib/store';
 import { SAMPLES } from '../lib/demo';
 import { downscale, analyzePlate } from '../lib/api';
@@ -80,7 +80,7 @@ export default function Home() {
 
   if (phase === 'uploading' || phase === 'analysing') {
     return (
-      <div className="px-4 lg:px-8">
+      <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24">
         <AnalysingOverlay
           photoUrl={localPhoto ?? ''}
           text={phase === 'uploading' ? 'ছবি পাঠানো হচ্ছে…' : slow ? 'আরেকটু অপেক্ষা করুন…' : 'খাবার খুঁজছি…'}
@@ -90,7 +90,7 @@ export default function Home() {
   }
 
   return (
-    <div className="px-4 lg:px-8 py-5 lg:py-12 grid gap-8 lg:grid-cols-2 lg:gap-12 lg:items-start">
+    <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-12 grid gap-8 lg:grid-cols-2 lg:gap-12 lg:items-start">
       {/* Left: intro + how it works (desktop hero) */}
       <section className="hidden lg:flex flex-col gap-6 lg:pt-4">
         <div>
@@ -114,13 +114,23 @@ export default function Home() {
             </li>
           ))}
         </ol>
-        <p className="hidden lg:flex text-sm text-ink/70 items-center gap-2">
+        <p className="hidden lg:flex text-sm text-ink/70 items-center gap-2 max-w-prose">
           <Lock size={16} aria-hidden /> শুধু থালার ছবি তুলুন — শিশুর ছবি নয়।
         </p>
+
+        <Link
+          to="/library"
+          className="elev-card btn-press hidden lg:flex items-center gap-4 bg-white rounded-3xl px-5 py-4 min-h-16"
+        >
+          <span className="w-12 h-12 shrink-0 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+            <BookOpen size={26} aria-hidden />
+          </span>
+          <span className="font-bold text-xl text-leaf">খাবারের লাইব্রেরি</span>
+        </Link>
       </section>
 
       {/* Right: camera / upload card */}
-      <section className="bg-white rounded-3xl shadow-lg p-4 lg:p-6 flex flex-col gap-5">
+      <section className="bg-white rounded-3xl elev-card p-4 lg:p-6 flex flex-col gap-5 min-w-0">
         <div>
           <p className="text-lg font-semibold text-leaf mb-3">শিশুর বয়স কত?</p>
           <div className="flex gap-2">
@@ -202,6 +212,13 @@ export default function Home() {
           </div>
           {isDemo() && <p className="text-xs mt-2 text-ink/60">DEMO চালু আছে</p>}
         </div>
+
+        <Link
+          to="/library"
+          className="btn-press lg:hidden flex items-center justify-center gap-3 w-full min-h-16 rounded-3xl bg-leaf text-white text-xl font-bold shadow"
+        >
+          <BookOpen size={26} aria-hidden /> খাবারের লাইব্রেরি
+        </Link>
 
         <p className="text-center text-sm text-ink/60">WHO/UNICEF খাদ্য-বৈচিত্র্য নিয়ম অনুসারে</p>
       </section>

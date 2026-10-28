@@ -88,10 +88,10 @@ export default function Result() {
   const showTomorrow = verdict !== 'good' && foodToAdd;
 
   return (
-    <div className="px-4 lg:px-8 py-5 lg:py-10 flex flex-col gap-5 lg:gap-8">
+    <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-10 flex flex-col gap-5 lg:gap-8">
       <div className="grid gap-5 lg:gap-8 lg:grid-cols-2 lg:items-stretch">
         {/* Left: plate photo */}
-        <figure className="bg-white rounded-3xl shadow-lg p-3 flex">
+        <figure className="bg-white rounded-3xl elev-card p-3 flex min-w-0">
           <img
             src={initial.photoUrl}
             alt="থালা"
@@ -152,7 +152,7 @@ export default function Result() {
       </div>
 
       {showTomorrow && (
-        <section className="bg-white rounded-3xl shadow-lg p-4 lg:p-6 fade-in-soft">
+        <section className="bg-white rounded-3xl elev-card p-4 lg:p-6 fade-in-soft">
           <div className="grid grid-cols-2 gap-3 lg:gap-5">
             <figure>
               <img src={initial.photoUrl} alt="আজ" className="w-full aspect-square lg:aspect-[16/10] object-cover rounded-2xl" />

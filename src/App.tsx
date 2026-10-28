@@ -4,11 +4,13 @@ import Header from './components/Header';
 import Home from './pages/Home';
 import Result from './pages/Result';
 import History from './pages/History';
+import Library from './pages/Library';
+import LibraryDetail from './pages/LibraryDetail';
 
 function Shell({ children }: { children: ReactNode }) {
   const location = useLocation();
   return (
-    <div key={location.pathname} className="screen-enter">
+    <div key={location.pathname} className="screen-enter w-full">
       {children}
     </div>
   );
@@ -17,7 +19,7 @@ function Shell({ children }: { children: ReactNode }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="mx-auto w-full max-w-[480px] md:max-w-[640px] lg:max-w-[1200px] min-h-svh bg-cream lg:shadow-xl">
+      <div className="w-full min-h-svh bg-cream">
         <Header />
         <main className="w-full">
           <Shell>
@@ -25,6 +27,8 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/result" element={<Result />} />
               <Route path="/history" element={<History />} />
+              <Route path="/library" element={<Library />} />
+              <Route path="/library/:id" element={<LibraryDetail />} />
             </Routes>
           </Shell>
         </main>

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Clock3, UtensilsCrossed } from 'lucide-react';
+import { BookOpen, Clock3, UtensilsCrossed } from 'lucide-react';
 import { isDemo, setDemo } from '../lib/store';
 
 export default function Header() {
@@ -22,8 +22,8 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-leaf text-white sticky top-0 z-20 shadow-md">
-      <div className="mx-auto w-full px-4 lg:px-8 h-16 flex items-center justify-between">
+    <header className="bg-gradient-to-r from-leaf via-[#1a6b3c] to-primary text-white sticky top-0 z-20 shadow-md w-full">
+      <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 h-16 lg:h-20 flex items-center justify-between gap-2">
         <button
           onPointerDown={startPress}
           onPointerUp={endPress}
@@ -36,7 +36,7 @@ export default function Header() {
             <UtensilsCrossed size={24} aria-hidden />
           </span>
           <span className="flex flex-col justify-center">
-            <span className="text-xl font-bold leading-tight">
+            <span className="text-xl lg:text-3xl font-bold leading-tight">
               পুষ্টি থালা{' '}
               {demo && (
                 <span className="text-xs bg-amber-warm text-ink rounded px-1.5 py-0.5 align-middle">DEMO</span>
@@ -45,15 +45,28 @@ export default function Header() {
             <span className="text-xs opacity-90 leading-tight">আজকের থালা, কালকের শক্তি</span>
           </span>
         </button>
-        {location.pathname !== '/history' && (
-          <Link
-            to="/history"
-            className="w-14 h-14 flex items-center justify-center rounded-2xl hover:bg-white/10 transition-colors"
-            aria-label="আগের থালা"
-          >
-            <Clock3 size={26} aria-hidden />
-          </Link>
-        )}
+        <nav className="flex items-center gap-1 shrink-0">
+          {location.pathname !== '/library' && !location.pathname.startsWith('/library/') && (
+            <Link
+              to="/library"
+              className="min-w-14 h-14 px-2 flex flex-col sm:flex-row items-center justify-center sm:gap-2 rounded-2xl hover:bg-white/10 transition-colors"
+              aria-label="খাবারের লাইব্রেরি"
+            >
+              <BookOpen size={24} aria-hidden />
+              <span className="text-[11px] sm:text-base font-semibold leading-none">লাইব্রেরি</span>
+            </Link>
+          )}
+          {location.pathname !== '/history' && (
+            <Link
+              to="/history"
+              className="min-w-14 h-14 px-2 flex flex-col sm:flex-row items-center justify-center sm:gap-2 rounded-2xl hover:bg-white/10 transition-colors"
+              aria-label="আগের থালা"
+            >
+              <Clock3 size={24} aria-hidden />
+              <span className="text-[11px] sm:text-base font-semibold leading-none">আগের থালা</span>
+            </Link>
+          )}
+        </nav>
       </div>
     </header>
   );

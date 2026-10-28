@@ -12,6 +12,36 @@ export function spokenMessage(verdict: Verdict, score: number, food: PriorityFoo
 
 let currentAudio: HTMLAudioElement | null = null;
 
+/** Speak arbitrary Bangla text (Food Library). Same voice path as results;
+ *  if no Bangla voice exists there is no MP3 for library text, so it stays silent. */
+export function speakText(text: string, onState: (speaking: boolean) => void) {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+    window.speechSynthesis?.cancel();
+    onState(false);
+    return;
+  }
+  window.speechSynthesis?.cancel();
+  try {
+    const voices = window.speechSynthesis?.getVoices() ?? [];
+    const bn = voices.find((v) => v.lang?.toLowerCase().startsWith('bn'));
+    if (!bn || !window.speechSynthesis) {
+      onState(false);
+      return;
+    }
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.voice = bn;
+    utter.lang = 'bn-BD';
+    utter.rate = 0.95;
+    utter.onend = utter.onerror = () => onState(false);
+    onState(true);
+    window.speechSynthesis.speak(utter);
+  } catch {
+    onState(false);
+  }
+}
+
 export function speak(
   verdict: Verdict,
   score: number,

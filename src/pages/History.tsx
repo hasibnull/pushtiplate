@@ -23,26 +23,26 @@ export default function History() {
   }, []);
 
   return (
-    <div className="px-4 lg:px-8 py-5 lg:py-10">
+    <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-10">
       <h1 className="text-3xl font-bold text-leaf mb-5">আগের থালা</h1>
       {loaded && rows.length === 0 && (
         <p className="text-center text-lg text-ink/70 py-10">এখনো কোনো থালা দেখা হয়নি</p>
       )}
       {!loaded && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-hidden>
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))]" aria-hidden>
           {[0, 1, 2].map((i) => (
             <div key={i} className="shimmer rounded-3xl min-h-24" />
           ))}
         </div>
       )}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))]">
         {rows.map((r, i) => {
           const food = PRIORITY.find((p) => p.group === r.food_to_add);
           return (
             <article
               key={r.id}
               style={{ animationDelay: `${i * 60}ms` }}
-              className="tile-pop bg-white rounded-3xl shadow-sm p-3 flex items-center gap-3 min-h-[88px]"
+              className="tile-pop elev-card bg-white rounded-3xl p-3 flex items-center gap-3 min-h-[88px]"
             >
               {thumbs[r.id] ? (
                 <img src={thumbs[r.id]} alt="" className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl object-cover shrink-0" />
