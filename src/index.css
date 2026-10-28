@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1e7a46;
+  --color-leaf: #14532d;
+  --color-amber-warm: #f59e0b;
+  --color-soft-red: #dc4a3a;
+  --color-cream: #fff9f0;
+  --color-ink: #1f2937;
+  --font-sans: "Hind Siliguri", system-ui, sans-serif;
+}
+
+html, body {
+  background: #fff9f0;
+  color: #1f2937;
+  font-family: "Hind Siliguri", system-ui, sans-serif;
+  margin: 0;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(30, 122, 70, 0.45); }
+  70% { box-shadow: 0 0 0 18px rgba(30, 122, 70, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(30, 122, 70, 0); }
+}
+.analysing-pulse { animation: pulse-ring 1.6s ease-out infinite; }
+
+@keyframes speak-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+.speaking { animation: speak-pulse 0.8s ease-in-out infinite; }
