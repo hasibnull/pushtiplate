@@ -35,7 +35,7 @@ export default function Header() {
   };
 
   const navBtn =
-    'min-w-14 h-14 px-2 flex flex-col sm:flex-row items-center justify-center sm:gap-2 rounded-2xl hover:bg-white/10 transition-colors';
+    'min-w-11 sm:min-w-14 h-14 px-1 sm:px-2 flex flex-col sm:flex-row items-center justify-center sm:gap-2 rounded-2xl hover:bg-white/10 transition-colors';
 
   return (
     <header className={`text-white sticky top-0 z-20 shadow-md w-full transition-colors duration-300 ${scrolled ? 'header-scrolled' : ''}`} style={scrolled ? undefined : { background: 'linear-gradient(100deg, #14532D 0%, #1E7A46 90%)' }}>
@@ -52,13 +52,13 @@ export default function Header() {
             <UtensilsCrossed size={24} aria-hidden />
           </span>
           <span className="flex flex-col justify-center">
-            <span className="text-xl lg:text-3xl font-bold leading-tight">
+            <span className="text-lg min-[420px]:text-xl lg:text-3xl font-bold leading-tight whitespace-nowrap">
               {t('appName')}{' '}
               {demo && (
                 <span className="text-xs bg-amber-warm text-ink rounded px-1.5 py-0.5 align-middle">DEMO</span>
               )}
             </span>
-            <span className="text-xs opacity-90 leading-tight">{t('tagline')}</span>
+            <span className="text-xs opacity-90 leading-tight hidden min-[420px]:block">{t('tagline')}</span>
           </span>
         </button>
 

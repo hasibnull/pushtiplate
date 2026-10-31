@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import Onboarding from './components/Onboarding';
 import Mascot from './components/Mascot';
 import { AlertTriangle, X } from 'lucide-react';
@@ -14,6 +15,8 @@ import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Playground from './pages/Playground';
 import Quiz from './pages/Quiz';
+import Faq from './pages/Faq';
+import { DisclaimerPage, PrivacyPage, TermsPage } from './pages/Legal';
 import { LanguageProvider, useLang } from './lib/i18n';
 
 function Shell({ children }: { children: ReactNode }) {
@@ -115,22 +118,15 @@ function Root() {
               <Route path="/login" element={<Login />} />
               <Route path="/play" element={<Playground />} />
               <Route path="/quiz" element={<Quiz />} />
+              <Route path="/faq" element={<Faq />} />
+              <Route path="/disclaimer" element={<DisclaimerPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
             </Routes>
           </Shell>
         )}
       </main>
-      {prefs.onboarded && (
-        <footer className="relative w-full text-white" style={{ background: '#0B2E1D', borderTop: '2px solid rgba(245,158,11,0.65)' }}>
-          <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-6 flex items-center gap-4">
-            <Mascot mood="happy" size={44} />
-            <div className="min-w-0">
-              <p className="font-bold text-lg leading-tight">{t('appName')}</p>
-              <p className="text-sm text-white/70 leading-tight">{t('tagline')}</p>
-            </div>
-            <p className="ml-auto text-xs text-white/50 text-right hidden sm:block">{t('whoFooter')}</p>
-          </div>
-        </footer>
-      )}
+      <Footer />
     </div>
   );
 }
