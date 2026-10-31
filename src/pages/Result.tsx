@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BadgeCheck, Check, HeartHandshake, PlusCircle, RotateCcw, Volume2 } from 'lucide-react';
-import { FOOD_GROUPS, scorePlate } from '../lib/scoring';
+import { BadgeCheck, Check, ChevronDown, Flame, HeartHandshake, PlusCircle, RotateCcw, Volume2 } from 'lucide-react';
+import { FOOD_GROUPS, GROUP_IDS, scorePlate } from '../lib/scoring';
 import { getPlate } from '../lib/store';
 import { saveAudit } from '../lib/supabase';
 import { tomorrowPlate } from '../lib/api';
 import { speak } from '../lib/speak';
+import { useLang } from '../lib/i18n';
+import { GROUP_BENEFIT, GROUP_LABEL, GROUP_PORTION, foodById } from '../lib/library';
+import { calorieTarget, plateNutrition } from '../lib/nutrition';
 import FoodIcon from '../components/FoodIcon';
 import ScoreRing from '../components/ScoreRing';
 import CompareSlider from '../components/CompareSlider';
@@ -40,16 +43,23 @@ function useCountUp(target: number, ms = 800) {
 }
 
 export default function Result() {
+  const { t, num, prefs } = useLang();
+  const lang = prefs.lang;
   const navigate = useNavigate();
   const initial = useMemo(getPlate, []);
   const [groups, setGroups] = useState<string[]>(initial?.groups ?? []);
   const [speaking, setSpeaking] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [tomorrowUrl, setTomorrowUrl] = useState<string | null>(initial?.tomorrowUrl ?? null);
   const savedOnce = useRef(false);
 
   const { score, verdict, foodToAdd } = scorePlate(groups);
   const displayScore = useCountUp(score);
+  const nutrition = useMemo(() => plateNutrition(initial?.foods ?? []), [initial]);
+  const kcalTarget = calorieTarget(initial?.ageMonths ?? 14);
+  const missing = GROUP_IDS.filter((g) => !groups.includes(g));
+  const portionPhrase = foodToAdd ? GROUP_PORTION[foodToAdd.group][lang] : '';
 
   useEffect(() => {
     if (!initial) navigate('/');
@@ -97,7 +107,7 @@ export default function Result() {
       ? {
           cls: 'text-white',
           bg: 'linear-gradient(100deg, #14532D, #1E7A46)',
-          text: 'দারুণ!',
+          text: t('verdictGood'),
           Icon: BadgeCheck,
           ring: '#1E7A46',
         }
@@ -105,19 +115,20 @@ export default function Result() {
         ? {
             cls: 'text-white',
             bg: 'linear-gradient(100deg, #B03A2E, #DC4A3A)',
-            text: 'আর একটু হলেই হবে',
+            text: t('verdictAdd'),
             Icon: HeartHandshake,
             ring: '#DC4A3A',
           }
         : {
             cls: 'text-ink',
             bg: 'linear-gradient(100deg, #FBBF24, #F59E0B)',
-            text: 'আর একটু হলেই হবে',
+            text: t('verdictAdd'),
             Icon: PlusCircle,
             ring: '#F59E0B',
           };
 
   const showTomorrow = verdict !== 'good' && foodToAdd;
+  const foodName = foodToAdd ? (foodById(foodToAdd.group === 'eggs' ? 'egg' : foodToAdd.group === 'legumes' ? 'dal' : foodToAdd.group === 'flesh' ? 'small-fish' : foodToAdd.group === 'dairy' ? 'milk' : 'sweet-potato')?.name[lang] ?? GROUP_LABEL[foodToAdd.group][lang]) : '';
 
   return (
     <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-10 flex flex-col gap-5 lg:gap-8">
@@ -126,7 +137,7 @@ export default function Result() {
         <figure className="glass-card rounded-3xl p-3 flex min-w-0">
           <img
             src={initial.photoUrl}
-            alt="থালা"
+            alt={t('today')}
             className="w-full h-full min-h-72 object-cover rounded-2xl"
           />
         </figure>
@@ -183,31 +194,111 @@ export default function Result() {
                         present ? 'text-ink' : 'text-ink/45'
                       }`}
                     >
-                      {g.label}
+                      {GROUP_LABEL[g.id][lang]}
                     </span>
                   </button>
                 );
               })}
             </div>
-            <p className="text-sm text-ink/60 text-center mt-3">যে আইকনে ভুল আছে, চাপ দিন</p>
+            <p className="text-sm text-ink/60 text-center mt-3">{t('tapToFix')}</p>
           </div>
 
           <button
-            onClick={() => speak(verdict, score, foodToAdd, setSpeaking)}
+            onClick={() => speak(verdict, score, foodToAdd, setSpeaking, lang, portionPhrase)}
             className={`btn-press btn-lift btn-primary-glow w-full min-h-16 rounded-3xl text-white text-2xl font-bold flex items-center justify-center gap-3 ${speaking ? 'speaking' : ''}`}
           >
-            <Volume2 size={30} aria-hidden /> শুনুন
+            <Volume2 size={30} aria-hidden /> {t('listen')}
           </button>
         </section>
       </div>
+
+      {/* Calorie meter — static data only, always labelled approximate (Phase 3) */}
+      <section className="glass-card rounded-3xl p-5 lg:p-6 flex flex-col gap-3">
+        <h2 className="text-xl font-bold text-leaf flex items-center gap-2">
+          <Flame size={26} className="text-amber-warm" aria-hidden /> {t('calorieTitle')}
+        </h2>
+        <div className="h-7 rounded-full bg-primary/10 overflow-hidden" role="img" aria-label={`${num(nutrition.kcal)} / ${num(kcalTarget)}`}>
+          <div
+            className="h-full rounded-full transition-all duration-1000"
+            style={{
+              width: `${Math.min(100, kcalTarget ? (nutrition.kcal / kcalTarget) * 100 : 0)}%`,
+              background: 'linear-gradient(90deg, #F59E0B, #1E7A46)',
+            }}
+          />
+        </div>
+        <p className="text-lg font-semibold">
+          {num(nutrition.kcal)} / {num(kcalTarget)} {t('kcalPerDay')}
+          <span className="block text-sm font-medium text-ink/60">{t('approxIdea')} · {t('protein')}: {num(nutrition.proteinG)} g</span>
+        </p>
+
+        {missing.length > 0 && (
+          <div className="mt-1">
+            <h3 className="font-bold text-lg">{t('stillNeeded')}</h3>
+            <ul className="flex flex-col gap-2 mt-2">
+              {missing.map((g) => {
+                const isNext = foodToAdd?.group === g;
+                return (
+                  <li
+                    key={g}
+                    className={`rounded-2xl px-4 py-3 min-h-14 flex items-center gap-3 ${
+                      isNext ? 'bg-amber-warm/20 border-2 border-amber-warm font-semibold added-glow' : 'bg-white/60 border border-ink/10'
+                    }`}
+                  >
+                    <FoodIcon group={g} size={24} className={isNext ? 'text-amber-warm' : 'text-ink/50'} />
+                    <span className="grow">
+                      {GROUP_LABEL[g][lang]} — {GROUP_PORTION[g][lang]}
+                    </span>
+                    {isNext && <span className="text-xs bg-amber-warm text-ink font-bold rounded-full px-2.5 py-1">{t('nextStep')}</span>}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+
+        <button
+          onClick={() => setShowDetails((v) => !v)}
+          className="btn-press self-start min-h-14 px-4 rounded-2xl border-2 border-primary/30 text-primary font-bold flex items-center gap-2 bg-white/70"
+          aria-expanded={showDetails}
+        >
+          <ChevronDown size={22} className={`transition-transform ${showDetails ? 'rotate-180' : ''}`} aria-hidden />
+          {t('details')}
+        </button>
+        {showDetails && (
+          <ul className="flex flex-col gap-2 fade-in-soft">
+            {GROUP_IDS.map((g) => {
+              const present = groups.includes(g);
+              const foundNames = (initial.foods ?? [])
+                .filter((f) => f.group === g)
+                .map((f) => f.name)
+                .join(', ');
+              return (
+                <li key={g} className="rounded-2xl bg-white/60 border border-ink/10 px-4 py-3">
+                  <p className="font-semibold flex items-center gap-2">
+                    <FoodIcon group={g} size={20} className={present ? 'text-primary' : 'text-ink/40'} />
+                    {GROUP_LABEL[g][lang]}
+                    <span className={`text-xs font-bold rounded-full px-2 py-0.5 ${present ? 'bg-primary/15 text-leaf' : 'bg-ink/10 text-ink/50'}`}>
+                      {present ? t('foundOnPlate') : t('notOnPlate')}
+                    </span>
+                  </p>
+                  {foundNames && <p className="text-sm text-ink/70 mt-0.5">{foundNames}</p>}
+                  <p className="text-sm text-ink/70">{GROUP_BENEFIT[g][lang]}</p>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
 
       {showTomorrow && (
         <section className="glass-card rounded-3xl p-4 lg:p-6 fade-in-soft">
           <CompareSlider
             beforeSrc={initial.photoUrl}
+            beforeLabel={t('today')}
+            afterLabel={t('tomorrow')}
             after={
               tomorrowUrl ? (
-                <img src={tomorrowUrl} alt="আগামীকাল" className="w-full h-full object-cover" draggable={false} />
+                <img src={tomorrowUrl} alt={t('tomorrow')} className="w-full h-full object-cover" draggable={false} />
               ) : (
                 <div className="w-full h-full bg-cream text-amber-warm flex items-center justify-center">
                   <FoodIcon group={foodToAdd.group} size={96} />
@@ -216,11 +307,11 @@ export default function Result() {
             }
           />
           <p className="flex items-center justify-center gap-2 text-center text-xl font-semibold mt-4">
-            কাল যোগ করুন:
+            {t('addTomorrow')}
             <span className="text-amber-warm inline-flex">
               <FoodIcon group={foodToAdd.group} size={26} />
             </span>
-            {foodToAdd.bangla}
+            {foodName}
           </p>
         </section>
       )}
@@ -228,21 +319,21 @@ export default function Result() {
       {verdict === 'see_worker' && (
         <div className="bg-[#FDECEA] border border-soft-red/40 rounded-3xl p-5 text-center fade-in-soft">
           <HeartHandshake size={44} className="mx-auto text-soft-red" aria-hidden />
-          <p className="text-lg font-semibold text-soft-red mt-2">এই কার্ডটি আপনার স্বাস্থ্য সেবিকাকে দেখান</p>
+          <p className="text-lg font-semibold text-soft-red mt-2">{t('showWorker')}</p>
         </div>
       )}
 
-      <p className="text-xs text-center text-ink/60">এটি সাধারণ খাওয়ানোর তথ্য। চিকিৎসা পরামর্শ নয়।</p>
+      <p className="text-xs text-center text-ink/60">{t('disclaimer')}</p>
 
       <div className="flex items-center justify-between gap-3 pb-4">
         <Link
           to="/"
           className="btn-press btn-lift flex-1 min-h-14 rounded-3xl border-2 border-primary text-primary font-bold text-lg flex items-center justify-center gap-2 bg-white"
         >
-          <RotateCcw size={22} aria-hidden /> আরেকটি থালা
+          <RotateCcw size={22} aria-hidden /> {t('anotherPlate')}
         </Link>
         {saved && (
-          <span className="text-primary font-semibold">সংরক্ষণ হয়েছে ✓</span>
+          <span className="text-primary font-semibold">{t('saved')}</span>
         )}
       </div>
     </div>

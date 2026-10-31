@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { toBangla } from '../lib/scoring';
+import { useLang } from '../lib/i18n';
 
 /** Circular score ring: fills to score/8 over 1.2s, number counts up inside. */
 export default function ScoreRing({
@@ -11,6 +11,7 @@ export default function ScoreRing({
   color: string;
   displayScore: number;
 }) {
+  const { t, num } = useLang();
   const R = 84;
   const C = 2 * Math.PI * R;
   const [filled, setFilled] = useState(0);
@@ -41,9 +42,9 @@ export default function ScoreRing({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-5xl lg:text-6xl font-bold text-leaf tabular-nums leading-none">
-          {toBangla(displayScore)} / {toBangla(8)}
+          {num(displayScore)} / {num(8)}
         </span>
-        <span className="text-base text-ink/60 mt-1.5">ধরনের খাবার</span>
+        <span className="text-base text-ink/60 mt-1.5">{t('kindsOfFood')}</span>
       </div>
     </div>
   );

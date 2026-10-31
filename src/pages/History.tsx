@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react';
-import { UtensilsCrossed } from 'lucide-react';
+import { UtensilsCrossed, Volume2 } from 'lucide-react';
 import { fetchAudits, signedUrlFor, type AuditRow } from '../lib/supabase';
-import { PRIORITY, toBangla } from '../lib/scoring';
+import { PRIORITY } from '../lib/scoring';
+import { GROUP_LABEL } from '../lib/library';
+import { speakText } from '../lib/speak';
+import { useLang } from '../lib/i18n';
 import FoodIcon from '../components/FoodIcon';
 
 export default function History() {
+  const { t, num, prefs } = useLang();
+  const lang = prefs.lang;
   const [rows, setRows] = useState<AuditRow[]>([]);
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
   const [loaded, setLoaded] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
 
   useEffect(() => {
     fetchAudits().then(async (data) => {
@@ -22,11 +28,21 @@ export default function History() {
     });
   }, []);
 
+  const locale = lang === 'bn' ? 'bn-BD' : lang === 'hi' ? 'hi-IN' : 'en-US';
+
   return (
     <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-10">
-      <h1 className="text-3xl font-bold text-leaf mb-5">আগের থালা</h1>
+      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+        <h1 className="text-3xl font-bold text-leaf">{t('history')}</h1>
+        <button
+          onClick={() => speakText(rows.length ? `${t('history')}: ${num(rows.length)}` : t('noPlatesYet'), setSpeaking, lang)}
+          className={`btn-press btn-lift btn-primary-glow min-h-14 px-5 rounded-3xl text-white text-lg font-bold flex items-center gap-2 ${speaking ? 'speaking' : ''}`}
+        >
+          <Volume2 size={24} aria-hidden /> {t('listen')}
+        </button>
+      </div>
       {loaded && rows.length === 0 && (
-        <p className="text-center text-lg text-ink/70 py-10">এখনো কোনো থালা দেখা হয়নি</p>
+        <p className="text-center text-lg text-ink/70 py-10">{t('noPlatesYet')}</p>
       )}
       {!loaded && (
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))]" aria-hidden>
@@ -52,15 +68,15 @@ export default function History() {
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="font-semibold truncate">{new Date(r.created_at).toLocaleDateString('bn-BD')}</p>
+                <p className="font-semibold truncate">{new Date(r.created_at).toLocaleDateString(locale)}</p>
                 {food && (
                   <p className="text-sm text-ink/60 flex items-center gap-1.5 mt-0.5">
-                    কাল: <FoodIcon group={food.group} size={17} className="text-amber-warm" /> {food.bangla}
+                    {t('tomorrowAddPrefix')} <FoodIcon group={food.group} size={17} className="text-amber-warm" /> {GROUP_LABEL[food.group][lang]}
                   </p>
                 )}
               </div>
               <span className="bg-primary/10 text-leaf font-bold rounded-full px-3 py-1.5 shrink-0">
-                {toBangla(r.score)}/{toBangla(8)}
+                {num(r.score)}/{num(8)}
               </span>
             </article>
           );

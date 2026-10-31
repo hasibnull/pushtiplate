@@ -9,6 +9,11 @@ export const SAMPLES: Record<'hero' | 'good' | 'low', PlateState> = {
     source: 'demo',
     tomorrowUrl: '/samples/hero-tomorrow.webp',
     photoDescription: 'rice, potato, dal',
+    foods: [
+      { name: 'rice', group: 'grains' },
+      { name: 'potato', group: 'grains' },
+      { name: 'dal', group: 'legumes' },
+    ],
   },
   good: {
     photoUrl: '/samples/good.webp',
@@ -17,6 +22,14 @@ export const SAMPLES: Record<'hero' | 'good' | 'low', PlateState> = {
     source: 'demo',
     tomorrowUrl: null,
     photoDescription: 'rice, dal, egg, spinach, banana, milk',
+    foods: [
+      { name: 'rice', group: 'grains' },
+      { name: 'dal', group: 'legumes' },
+      { name: 'egg', group: 'eggs' },
+      { name: 'spinach', group: 'vit_a_fruits_veg' },
+      { name: 'banana', group: 'other_fruits_veg' },
+      { name: 'milk', group: 'dairy' },
+    ],
   },
   low: {
     photoUrl: '/samples/low.webp',
@@ -25,5 +38,9 @@ export const SAMPLES: Record<'hero' | 'good' | 'low', PlateState> = {
     source: 'demo',
     tomorrowUrl: '/samples/low-tomorrow.webp',
     photoDescription: 'rice, potato',
+    foods: [
+      { name: 'rice', group: 'grains' },
+      { name: 'potato', group: 'grains' },
+    ],
   },
 };

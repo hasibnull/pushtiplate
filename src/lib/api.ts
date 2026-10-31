@@ -12,19 +12,31 @@ async function invoke<T>(name: string, body: Record<string, unknown>): Promise<T
   }
 }
 
-/** Call analyze-plate once; caller retries/validates (§5.3). Returns cleaned groups or null. */
+export interface AnalysisResult {
+  groups: string[];
+  foods: { name: string; group: string }[];
+}
+
+/** Call analyze-plate once; caller retries/validates (§5.3). Returns groups+foods or null. */
 export async function analyzePlate(
   photoUrl: string,
   ageMonths: number,
   voiceFoods?: string[],
-): Promise<string[] | null> {
+): Promise<AnalysisResult | null> {
   const data = await invoke<Record<string, unknown>>('analyze-plate', {
     photoUrl,
     ageMonths,
     voiceFoods: voiceFoods ?? [],
   });
   if (!data || (data as { fallback?: boolean }).fallback) return null;
-  return validateSparkJson(data);
+  const groups = validateSparkJson(data);
+  if (!groups) return null;
+  const foods = Array.isArray(data.foods)
+    ? (data.foods as { name?: unknown; group?: unknown }[])
+        .filter((f) => typeof f?.name === 'string' && typeof f?.group === 'string')
+        .map((f) => ({ name: f.name as string, group: f.group as string }))
+    : [];
+  return { groups, foods };
 }
 
 export async function tomorrowPlate(

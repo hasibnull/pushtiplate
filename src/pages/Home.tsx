@@ -5,31 +5,35 @@ import { getAge, setAge, setPlate, isDemo } from '../lib/store';
 import { SAMPLES } from '../lib/demo';
 import { downscale, analyzePlate } from '../lib/api';
 import { uploadPlate } from '../lib/supabase';
+import { speakText } from '../lib/speak';
+import { useLang } from '../lib/i18n';
 import AnalysingOverlay from '../components/AnalysingOverlay';
 
 const AGES = [
-  { label: '৬–১১ মাস', months: 9 },
-  { label: '১২–১৭ মাস', months: 14 },
-  { label: '১৮–২৩ মাস', months: 20 },
-];
-
-const STEPS = [
-  { icon: Camera, text: 'থালার ছবি তুলুন' },
-  { icon: Search, text: 'খাবার খুঁজছি…' },
-  { icon: Volume2, text: 'শুনুন' },
+  { range: '6–11', months: 9 },
+  { range: '12–17', months: 14 },
+  { range: '18–23', months: 20 },
 ];
 
 type Phase = 'idle' | 'uploading' | 'analysing' | 'error';
 
 export default function Home() {
+  const { t, num, prefs } = useLang();
   const navigate = useNavigate();
   const [age, setAgeState] = useState(getAge());
   const [phase, setPhase] = useState<Phase>('idle');
   const [localPhoto, setLocalPhoto] = useState<string | null>(null);
   const [slow, setSlow] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const pendingFile = useRef<File | null>(null);
+
+  const STEPS = [
+    { icon: Camera, text: t('takePhoto') },
+    { icon: Search, text: t('findingFoods') },
+    { icon: Volume2, text: t('listen') },
+  ];
 
   const pickAge = (months: number) => {
     setAge(months);
@@ -47,23 +51,23 @@ export default function Home() {
       const blob = await downscale(file);
       const uploaded = await uploadPlate(blob);
       setPhase('analysing');
-      let groups: string[] = [];
       if (uploaded) {
         // Validate → retry once → correction-tap fallback (§5.3)
-        groups =
+        const result =
           (await analyzePlate(uploaded.signedUrl, age)) ??
-          (await analyzePlate(uploaded.signedUrl, age)) ??
-          [];
+          (await analyzePlate(uploaded.signedUrl, age));
         setPlate({
           photoUrl: uploaded.signedUrl,
           photoPath: uploaded.path,
           ageMonths: age,
-          groups,
+          groups: result?.groups ?? [],
+          foods: result?.foods ?? [],
+          photoDescription: (result?.foods ?? []).map((f) => f.name).join(', ') || undefined,
           source: 'live',
         });
       } else {
         // Supabase not connected yet: still show result, user can tap icons
-        setPlate({ photoUrl: objectUrl, ageMonths: age, groups: [], source: 'live' });
+        setPlate({ photoUrl: objectUrl, ageMonths: age, groups: [], foods: [], source: 'live' });
       }
       navigate('/result');
     } catch {
@@ -83,7 +87,7 @@ export default function Home() {
       <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24">
         <AnalysingOverlay
           photoUrl={localPhoto ?? ''}
-          text={phase === 'uploading' ? 'ছবি পাঠানো হচ্ছে…' : slow ? 'আরেকটু অপেক্ষা করুন…' : 'খাবার খুঁজছি…'}
+          text={phase === 'uploading' ? t('uploading') : slow ? t('waitMore') : t('findingFoods')}
         />
       </div>
     );
@@ -94,8 +98,8 @@ export default function Home() {
       {/* Left: intro + how it works (desktop hero) */}
       <section className="hidden lg:flex flex-col gap-6 lg:pt-4">
         <div>
-          <h1 className="text-4xl lg:text-5xl font-bold text-leaf leading-tight">পুষ্টি থালা</h1>
-          <p className="text-lg text-ink/70 mt-1">আজকের থালা, কালকের শক্তি</p>
+          <h1 className="text-4xl lg:text-5xl font-bold text-leaf leading-tight">{t('appName')}</h1>
+          <p className="text-lg text-ink/70 mt-1">{t('tagline')}</p>
         </div>
         <ol className="flex flex-col gap-3">
           {STEPS.map((s, i) => (
@@ -115,8 +119,15 @@ export default function Home() {
           ))}
         </ol>
         <p className="hidden lg:flex text-sm text-ink/70 items-center gap-2 max-w-prose">
-          <Lock size={16} aria-hidden /> শুধু থালার ছবি তুলুন — শিশুর ছবি নয়।
+          <Lock size={16} aria-hidden /> {t('privacyLine')}
         </p>
+
+        <button
+          onClick={() => speakText(t('stepsListen'), setSpeaking, prefs.lang)}
+          className={`btn-press btn-lift btn-primary-glow hidden lg:flex items-center justify-center gap-3 w-full min-h-16 rounded-3xl text-white text-xl font-bold ${speaking ? 'speaking' : ''}`}
+        >
+          <Volume2 size={26} aria-hidden /> {t('listen')}
+        </button>
 
         <Link
           to="/library"
@@ -125,18 +136,18 @@ export default function Home() {
           <span className="w-12 h-12 shrink-0 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
             <BookOpen size={26} aria-hidden />
           </span>
-          <span className="font-bold text-xl text-leaf">খাবারের লাইব্রেরি</span>
+          <span className="font-bold text-xl text-leaf">{t('library')}</span>
         </Link>
       </section>
 
       {/* Right: camera / upload card */}
       <section className="glass-card rounded-3xl p-4 lg:p-6 flex flex-col gap-5 min-w-0">
         <div>
-          <p className="text-lg font-semibold text-leaf mb-3">শিশুর বয়স কত?</p>
+          <p className="text-lg font-semibold text-leaf mb-3">{t('ageQuestion')}</p>
           <div className="flex gap-2">
             {AGES.map((a) => (
               <button
-                key={a.label}
+                key={a.range}
                 onClick={() => pickAge(a.months)}
                 className={`btn-press flex-1 min-h-14 rounded-2xl text-lg font-semibold border-2 transition-colors ${
                   age === a.months
@@ -144,7 +155,7 @@ export default function Home() {
                     : 'bg-white text-ink border-primary/30 hover:border-primary'
                 }`}
               >
-                {a.label}
+                {num(a.range)} {t('months')}
               </button>
             ))}
           </div>
@@ -154,7 +165,7 @@ export default function Home() {
           onClick={() => cameraRef.current?.click()}
           className="btn-press btn-lift btn-primary-glow w-full h-24 rounded-3xl text-white text-2xl font-bold flex items-center justify-center gap-3"
         >
-          <Camera size={38} aria-hidden /> থালার ছবি তুলুন
+          <Camera size={38} aria-hidden /> {t('takePhoto')}
         </button>
         <input
           ref={cameraRef}
@@ -168,7 +179,7 @@ export default function Home() {
           onClick={() => galleryRef.current?.click()}
           className="btn-press btn-lift w-full min-h-14 rounded-3xl border-2 border-primary text-primary text-lg font-semibold bg-white flex items-center justify-center gap-2"
         >
-          <Images size={24} aria-hidden /> গ্যালারি থেকে ছবি নিন
+          <Images size={24} aria-hidden /> {t('fromGallery')}
         </button>
         <input
           ref={galleryRef}
@@ -183,23 +194,30 @@ export default function Home() {
             onClick={() => pendingFile.current && handleFile(pendingFile.current)}
             className="btn-press w-full min-h-14 rounded-3xl bg-amber-warm text-ink text-lg font-bold"
           >
-            আবার চেষ্টা করুন
+            {t('tryAgain')}
           </button>
         )}
 
         <p className="lg:hidden text-sm text-ink/70 flex items-center gap-2">
-          <Lock size={16} aria-hidden /> শুধু থালার ছবি তুলুন — শিশুর ছবি নয়।
+          <Lock size={16} aria-hidden /> {t('privacyLine')}
         </p>
 
+        <button
+          onClick={() => speakText(t('stepsListen'), setSpeaking, prefs.lang)}
+          className={`btn-press btn-lift btn-primary-glow lg:hidden w-full min-h-16 rounded-3xl text-white text-xl font-bold flex items-center justify-center gap-3 ${speaking ? 'speaking' : ''}`}
+        >
+          <Volume2 size={26} aria-hidden /> {t('listen')}
+        </button>
+
         <div>
-          <p className="text-lg font-semibold text-leaf mb-3">নমুনা থালা দেখুন</p>
+          <p className="text-lg font-semibold text-leaf mb-3">{t('samplePlates')}</p>
           <div className="grid grid-cols-3 gap-3">
             {(Object.keys(SAMPLES) as (keyof typeof SAMPLES)[]).map((key) => (
               <button
                 key={key}
                 onClick={() => onSample(key)}
                 className="btn-press group rounded-3xl overflow-hidden bg-white shadow min-h-14 ring-primary/0 hover:ring-4 hover:ring-primary/50 focus-visible:ring-4 focus-visible:ring-primary/60 transition-shadow"
-                aria-label={`নমুনা ${key}`}
+                aria-label={key}
               >
                 <img
                   src={SAMPLES[key].photoUrl}
@@ -210,17 +228,17 @@ export default function Home() {
               </button>
             ))}
           </div>
-          {isDemo() && <p className="text-xs mt-2 text-ink/60">DEMO চালু আছে</p>}
+          {isDemo() && <p className="text-xs mt-2 text-ink/60">DEMO</p>}
         </div>
 
         <Link
           to="/library"
           className="btn-press lg:hidden flex items-center justify-center gap-3 w-full min-h-16 rounded-3xl bg-leaf text-white text-xl font-bold shadow"
         >
-          <BookOpen size={26} aria-hidden /> খাবারের লাইব্রেরি
+          <BookOpen size={26} aria-hidden /> {t('library')}
         </Link>
 
-        <p className="text-center text-sm text-ink/60">WHO/UNICEF খাদ্য-বৈচিত্র্য নিয়ম অনুসারে</p>
+        <p className="text-center text-sm text-ink/60">{t('whoFooter')}</p>
       </section>
     </div>
   );

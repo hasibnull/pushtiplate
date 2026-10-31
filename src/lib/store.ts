@@ -9,6 +9,8 @@ export interface PlateState {
   tomorrowUrl?: string | null;
   /** Short food list for tomorrow-plate prompt, e.g. "rice, dal, potato" */
   photoDescription?: string;
+  /** Foods the AI saw (names) — matched to static nutrition data in code */
+  foods?: { name: string; group: string }[];
 }
 
 const KEY = 'pushtiplate:plate';

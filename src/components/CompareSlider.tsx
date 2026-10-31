@@ -5,9 +5,13 @@ import { ChevronsLeftRight } from 'lucide-react';
 export default function CompareSlider({
   beforeSrc,
   after,
+  beforeLabel = 'আজ',
+  afterLabel = 'আগামীকাল',
 }: {
   beforeSrc: string;
   after: ReactNode;
+  beforeLabel?: string;
+  afterLabel?: string;
 }) {
   const [pos, setPos] = useState(55);
   const ref = useRef<HTMLDivElement>(null);
@@ -35,14 +39,14 @@ export default function CompareSlider({
       <div className="absolute inset-0">{after}</div>
       {/* Before (today) — clipped from the right */}
       <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-        <img src={beforeSrc} alt="আজ" className="w-full h-full object-cover" draggable={false} />
+        <img src={beforeSrc} alt={beforeLabel} className="w-full h-full object-cover" draggable={false} />
       </div>
 
       <span className="absolute top-3 left-3 bg-black/55 text-white font-bold px-3 py-1 rounded-full backdrop-blur-sm">
-        আজ
+        {beforeLabel}
       </span>
       <span className="absolute top-3 right-3 bg-primary/85 text-white font-bold px-3 py-1 rounded-full backdrop-blur-sm">
-        আগামীকাল
+        {afterLabel}
       </span>
 
       {/* Handle */}
@@ -60,7 +64,7 @@ export default function CompareSlider({
         value={Math.round(pos)}
         onChange={(e) => setPos(Number(e.target.value))}
         className="absolute inset-x-4 bottom-3 w-[calc(100%-2rem)] opacity-0 h-14 cursor-ew-resize"
-        aria-label="আজ / আগামীকাল"
+        aria-label={`${beforeLabel} / ${afterLabel}`}
       />
     </div>
   );
