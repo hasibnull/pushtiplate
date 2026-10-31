@@ -6,6 +6,7 @@ import { GROUP_LABEL } from '../lib/library';
 import { speakText } from '../lib/speak';
 import { useLang } from '../lib/i18n';
 import FoodIcon from '../components/FoodIcon';
+import Mascot from '../components/Mascot';
 
 export default function History() {
   const { t, num, prefs } = useLang();
@@ -42,7 +43,10 @@ export default function History() {
         </button>
       </div>
       {loaded && rows.length === 0 && (
-        <p className="text-center text-lg text-ink/70 py-10">{t('noPlatesYet')}</p>
+        <div className="flex flex-col items-center gap-2 py-10">
+          <Mascot mood="caring" size={96} />
+          <p className="text-center text-lg text-ink/70">{t('noPlatesYet')}</p>
+        </div>
       )}
       {!loaded && (
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))]" aria-hidden>

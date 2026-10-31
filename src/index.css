@@ -155,6 +155,78 @@ html, body {
   border-radius: 6px;
 }
 
+/* ---------- mascot (পুষ্টি বন্ধু) ---------- */
+@keyframes mascot-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.mascot { animation: mascot-float 3.2s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes mascot-bounce {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(-14px) scale(0.96, 1.05); }
+  55% { transform: translateY(0) scale(1.05, 0.94); }
+  75% { transform: translateY(-7px) scale(0.98, 1.02); }
+}
+.mascot-happy { animation: mascot-bounce 0.9s ease-in-out infinite; }
+@keyframes mascot-wave {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-24deg); }
+}
+.mascot-arm { transform-origin: 100px 76px; }
+.mascot-happy .mascot-arm { animation: mascot-wave 0.55s ease-in-out infinite; }
+@keyframes mascot-nod {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(3.5deg) translateY(2px); }
+}
+.mascot-encourage { animation: mascot-nod 1.6s ease-in-out infinite; }
+.mascot-caring { animation-duration: 4.5s; }
+
+/* ---------- splash ---------- */
+@keyframes splash-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes splash-out {
+  to { opacity: 0; visibility: hidden; }
+}
+.splash-logo { animation: splash-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.splash-hide { animation: splash-out 0.45s ease-in 1.15s both; }
+
+/* ---------- confetti ---------- */
+@keyframes confetti-fall {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--cx), calc(var(--cy) * -1 + 340px)) rotate(var(--cr)); opacity: 0; }
+}
+.confetti-bit {
+  position: absolute; width: 9px; height: 13px; top: 0;
+  animation-name: confetti-fall; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); animation-fill-mode: both;
+}
+
+/* ---------- dark mode (token overrides; .dark on <html>) ---------- */
+.dark {
+  --color-ink: #e8f2ea;
+  --color-cream: #16281c;
+  --color-leaf: #8fd0a8;
+}
+.dark body, .dark .app-bg { background-color: #0b1710; }
+.dark .app-bg { background-image: radial-gradient(rgba(143, 208, 168, 0.07) 1.2px, transparent 1.2px); }
+.dark .glass-card {
+  background: rgba(18, 34, 24, 0.88);
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+}
+.dark .bg-white, .dark .bg-white\/70, .dark .bg-white\/80, .dark .bg-white\/60 {
+  background-color: rgba(24, 44, 31, 0.92);
+}
+.dark .shimmer { background: linear-gradient(100deg, #16281c 40%, #1f3a28 50%, #16281c 60%); background-size: 200% 100%; }
+.dark .tile-pop [class*="text-ink"] { color: #1f2937; }
+.dark input { color: #e8f2ea; }
+.dark .border-ink\/10 { border-color: rgba(255,255,255,0.12); }
+.dark .border-ink\/20 { border-color: rgba(255,255,255,0.2); }
+
+/* ---------- big text (বড় অক্ষর) ---------- */
+html.big-text { font-size: 20px; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

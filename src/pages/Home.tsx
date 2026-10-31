@@ -8,6 +8,7 @@ import { uploadPlate } from '../lib/supabase';
 import { speakText } from '../lib/speak';
 import { useLang } from '../lib/i18n';
 import AnalysingOverlay from '../components/AnalysingOverlay';
+import Mascot from '../components/Mascot';
 
 const AGES = [
   { range: '6–11', months: 9 },
@@ -97,9 +98,12 @@ export default function Home() {
     <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-12 grid gap-8 lg:grid-cols-2 lg:gap-12 lg:items-start">
       {/* Left: intro + how it works (desktop hero) */}
       <section className="hidden lg:flex flex-col gap-6 lg:pt-4">
-        <div>
-          <h1 className="text-4xl lg:text-5xl font-bold text-leaf leading-tight">{t('appName')}</h1>
-          <p className="text-lg text-ink/70 mt-1">{t('tagline')}</p>
+        <div className="flex items-end gap-4">
+          <div>
+            <h1 className="text-4xl lg:text-5xl font-bold text-leaf leading-tight">{t('appName')}</h1>
+            <p className="text-lg text-ink/70 mt-1">{t('tagline')}</p>
+          </div>
+          <Mascot mood="idle" size={96} />
         </div>
         <ol className="flex flex-col gap-3">
           {STEPS.map((s, i) => (
@@ -142,6 +146,7 @@ export default function Home() {
 
       {/* Right: camera / upload card */}
       <section className="glass-card rounded-3xl p-4 lg:p-6 flex flex-col gap-5 min-w-0">
+        <div className="lg:hidden flex justify-center -mb-1"><Mascot mood="idle" size={76} /></div>
         <div>
           <p className="text-lg font-semibold text-leaf mb-3">{t('ageQuestion')}</p>
           <div className="flex gap-2">

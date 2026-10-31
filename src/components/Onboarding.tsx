@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Check, ChevronRight, Globe2, Languages } from 'lucide-react';
 import { COUNTRIES, LANGS, useLang, type Lang } from '../lib/i18n';
+import Mascot from './Mascot';
 
 export default function Onboarding({ onDone }: { onDone: () => void }) {
   const { prefs, setPrefs, t } = useLang();
@@ -16,6 +17,7 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
   return (
     <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-10 lg:py-16 flex flex-col items-center">
       <div className="w-full max-w-2xl flex flex-col gap-6">
+        <div className="flex justify-center"><Mascot mood="idle" size={104} /></div>
         <div className="flex items-center gap-2 justify-center" aria-hidden>
           {[1, 2].map((s) => (
             <span key={s} className={`h-2.5 rounded-full transition-all ${step >= s ? 'w-10 bg-primary' : 'w-4 bg-primary/20'}`} />

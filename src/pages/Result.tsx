@@ -12,6 +12,8 @@ import { calorieTarget, plateNutrition } from '../lib/nutrition';
 import FoodIcon from '../components/FoodIcon';
 import ScoreRing from '../components/ScoreRing';
 import CompareSlider from '../components/CompareSlider';
+import Mascot from '../components/Mascot';
+import Confetti from '../components/Confetti';
 
 /** Soft tint per food group (tiles). */
 const TINTS: Record<string, { bg: string; chip: string; fg: string }> = {
@@ -131,7 +133,8 @@ export default function Result() {
   const foodName = foodToAdd ? (foodById(foodToAdd.group === 'eggs' ? 'egg' : foodToAdd.group === 'legumes' ? 'dal' : foodToAdd.group === 'flesh' ? 'small-fish' : foodToAdd.group === 'dairy' ? 'milk' : 'sweet-potato')?.name[lang] ?? GROUP_LABEL[foodToAdd.group][lang]) : '';
 
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-10 flex flex-col gap-5 lg:gap-8">
+    <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-10 flex flex-col gap-5 lg:gap-8 relative">
+      <Confetti show={verdict === 'good'} />
       <div className="grid gap-5 lg:gap-8 lg:grid-cols-2 lg:items-stretch">
         {/* Left: plate photo */}
         <figure className="glass-card rounded-3xl p-3 flex min-w-0">
@@ -153,6 +156,7 @@ export default function Result() {
               <banner.Icon size={52} strokeWidth={1.6} aria-hidden />
               <span className="text-2xl lg:text-3xl font-bold">{banner.text}</span>
             </div>
+            <Mascot mood={score >= 5 ? 'happy' : score >= 3 ? 'encourage' : 'caring'} size={92} />
           </div>
 
           <div>
