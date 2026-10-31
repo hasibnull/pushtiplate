@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Camera, Gamepad2, Images, Languages, Lock, Play, Puzzle, Search, Trophy, UtensilsCrossed, Volume2 } from 'lucide-react';
 import { getAge, setAge, setPlate, isDemo } from '../lib/store';
@@ -11,6 +11,7 @@ import AnalysingOverlay from '../components/AnalysingOverlay';
 import Mascot from '../components/Mascot';
 import FoodIcon from '../components/FoodIcon';
 import { challengeDoneToday, todaysMission } from '../lib/fun';
+import { foodById } from '../lib/library';
 
 const AGES = [
   { range: '6–11', months: 9 },
@@ -24,12 +25,12 @@ const SAMPLE_NAMES: Record<keyof typeof SAMPLES, string> = {
   low: 'sampleLow',
 };
 
-/** Floating mini food chips around the mascot (tinted palette). */
+/** Orbiting food chips around the mascot stage (accent palette lives here only). */
 const FLOATERS = [
-  { group: 'eggs', bg: '#FEF9C3', fg: '#854D0E', cls: 'left-0 top-2', dur: '3.4s', delay: '0s' },
-  { group: 'flesh', bg: '#FFE4E6', fg: '#9F1239', cls: 'right-1 top-8', dur: '4.1s', delay: '-1.2s' },
-  { group: 'other_fruits_veg', bg: '#DCFCE7', fg: '#166534', cls: 'left-3 bottom-1', dur: '3.8s', delay: '-0.6s' },
-  { group: 'vit_a_fruits_veg', bg: '#FFEDD5', fg: '#9A3412', cls: 'right-3 bottom-3', dur: '4.4s', delay: '-2s' },
+  { group: 'eggs', bg: '#FEF9C3', fg: '#854D0E', cls: 'left-1/2 -translate-x-1/2 -top-1' },
+  { group: 'flesh', bg: '#FFE4E6', fg: '#9F1239', cls: 'top-1/2 -translate-y-1/2 -right-1' },
+  { group: 'other_fruits_veg', bg: '#DCFCE7', fg: '#166534', cls: 'left-1/2 -translate-x-1/2 -bottom-1' },
+  { group: 'vit_a_fruits_veg', bg: '#FFEDD5', fg: '#9A3412', cls: 'top-1/2 -translate-y-1/2 -left-1' },
 ] as const;
 
 type Phase = 'idle' | 'uploading' | 'analysing' | 'error';
@@ -45,6 +46,21 @@ export default function Home() {
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const pendingFile = useRef<File | null>(null);
+
+  // Scroll-triggered reveals (premium motion, no library)
+  useEffect(() => {
+    const els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window) || els.length === 0) {
+      els.forEach((el) => el.classList.add('in'));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }),
+      { threshold: 0.12 },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
 
   const STEPS = [
     { icon: Camera, bg: '#E0F2FE', fg: '#0284C7', title: t('takePhoto'), desc: t('stepPhotoDesc') },
@@ -117,31 +133,44 @@ export default function Home() {
   }
 
   return (
+    <div className="w-full">
     <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-12 grid gap-8 lg:grid-cols-2 lg:gap-12 lg:items-start">
       {/* Left: intro, how-it-works step cards, impact strip (desktop hero) */}
-      <section className="hidden lg:flex flex-col gap-5 lg:pt-2">
-        <div className="flex items-center gap-5">
-          <div>
-            <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-              <span className="gradient-text">{t('appName')}</span>
-            </h1>
-            <p className="text-lg text-ink/70 mt-1">{t('tagline')}</p>
-            <p className="text-sm text-ink/60 flex items-center gap-2 mt-3">
-              <Lock size={15} aria-hidden /> {t('privacyLine')}
-            </p>
+      <section className="hidden lg:flex flex-col gap-6 lg:pt-2">
+        <div className="screen-enter" style={{ animationDelay: '0ms' }}>
+          <h1 className="text-[56px] xl:text-[64px] font-extrabold leading-[1.04]">
+            <span className="gradient-text">{t('appName')}</span>
+          </h1>
+          <p className="text-xl text-ink/70 mt-3 max-w-md leading-relaxed">{t('tagline')}</p>
+          <p className="text-sm text-ink/60 flex items-center gap-2 mt-4">
+            <Lock size={15} aria-hidden /> {t('privacyLine')}
+          </p>
+        </div>
+
+        {/* Mascot stage: glow disc + slow orbit ring + floating result preview */}
+        <div className="screen-enter relative self-start ml-2" style={{ animationDelay: '80ms' }}>
+          <div aria-hidden className="absolute inset-4 rounded-full" style={{ background: 'radial-gradient(circle at 50% 42%, rgba(245,158,11,0.28), rgba(30,122,70,0.14) 55%, transparent 72%)' }} />
+          <div className="relative w-[228px] h-[228px]">
+            <div aria-hidden className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20" />
+            <div aria-hidden className="orbit-ring absolute inset-0">
+              {FLOATERS.map((f) => (
+                <span key={f.group} className={`absolute ${f.cls} w-11 h-11`}>
+                  <span className="orbit-chip w-11 h-11 rounded-2xl flex items-center justify-center shadow-l1 border border-white/70" style={{ background: f.bg, color: f.fg }}>
+                    <FoodIcon group={f.group} size={23} />
+                  </span>
+                </span>
+              ))}
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Mascot mood="idle" size={124} />
+            </div>
           </div>
-          <div className="relative shrink-0 px-8 py-3">
-            <Mascot mood="idle" size={124} />
-            {FLOATERS.map((f) => (
-              <span
-                key={f.group}
-                aria-hidden
-                className={`float-chip absolute ${f.cls} w-11 h-11 rounded-2xl flex items-center justify-center shadow-md`}
-                style={{ background: f.bg, color: f.fg, animationDuration: f.dur, animationDelay: f.delay }}
-              >
-                <FoodIcon group={f.group} size={23} />
-              </span>
-            ))}
+          <div className="absolute -bottom-3 left-[132px] z-10 glass-card rounded-2xl px-3.5 py-2.5 shadow-l3 flex items-center gap-2.5 whitespace-nowrap">
+            <span className="tnum text-lg font-extrabold text-leaf leading-none">{num(6)}/{num(8)}</span>
+            <span className="text-xs text-ink/60 font-medium leading-tight">{t('kindsOfFood')}</span>
+            <span className="text-xs font-bold rounded-full px-2 py-1" style={{ background: '#FEF9C3', color: '#854D0E' }}>
+              {t('addNext')}: {foodById('egg')?.name[prefs.lang]}
+            </span>
           </div>
         </div>
 
@@ -151,7 +180,7 @@ export default function Home() {
             {STEPS.map((s, i) => (
               <li
                 key={s.title}
-                style={{ animationDelay: `${i * 140}ms` }}
+                style={{ animationDelay: `${160 + i * 75}ms` }}
                 className="screen-enter glass-card rounded-3xl p-4 flex items-center gap-4 min-h-20"
               >
                 <span
@@ -212,8 +241,7 @@ export default function Home() {
       </section>
 
       {/* Right: camera / upload card */}
-      <section className="glass-card rounded-3xl p-4 lg:p-6 flex flex-col gap-5 min-w-0 relative overflow-hidden">
-        <div aria-hidden className="absolute inset-x-0 top-0 h-2" style={{ background: 'linear-gradient(90deg, #1E7A46, #F59E0B, #FB7185, #38BDF8)' }} />
+      <section className="screen-enter expensive-card rounded-[2rem] p-4 lg:p-6 flex flex-col gap-5 min-w-0 relative overflow-hidden" style={{ animationDelay: '240ms' }}>
         <div className="lg:hidden flex justify-center -mb-1 pt-1"><Mascot mood="idle" size={76} /></div>
         <div>
           <p className="text-lg font-semibold text-leaf mb-3">{t('ageQuestion')}</p>
@@ -238,7 +266,7 @@ export default function Home() {
         <button
           id="camera-btn"
           onClick={() => cameraRef.current?.click()}
-          className="btn-press btn-lift btn-primary-glow w-full h-24 rounded-3xl text-white text-2xl font-bold flex items-center justify-center gap-3"
+          className="btn-press btn-lift btn-shine btn-primary-glow w-full h-24 rounded-3xl text-white text-2xl font-bold flex items-center justify-center gap-3"
         >
           <Camera size={38} aria-hidden /> {t('takePhoto')}
         </button>
@@ -304,7 +332,7 @@ export default function Home() {
                     className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => ((e.target as HTMLImageElement).style.opacity = '0.25')}
                   />
-                  <span className="absolute top-2 left-2 bg-amber-warm text-ink text-xs font-black rounded-full px-2 py-0.5 shadow">
+                  <span className="tnum absolute top-2 left-2 bg-white/70 backdrop-blur-md border border-white/70 text-ink text-xs font-black rounded-full px-2 py-0.5 shadow-l1">
                     {num(SAMPLES[key].groups.length)}/{num(8)}
                   </span>
                 </span>
@@ -319,8 +347,7 @@ export default function Home() {
 
         <button
           onClick={() => onSample('hero')}
-          className="btn-press btn-lift w-full min-h-16 rounded-3xl text-white text-xl font-bold flex items-center justify-center gap-3 shadow-[0_12px_26px_-10px_rgba(245,158,11,0.7)]"
-          style={{ background: 'linear-gradient(95deg, #F59E0B, #FB7185)' }}
+          className="btn-press btn-lift btn-primary-glow w-full min-h-16 rounded-3xl text-white text-xl font-bold flex items-center justify-center gap-3"
         >
           <Play size={26} aria-hidden /> {t('demoButton')}
         </button>
@@ -341,7 +368,7 @@ export default function Home() {
               {!done && (
                 <button
                   onClick={() => document.getElementById('camera-btn')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-                  className="btn-press shrink-0 min-h-14 px-4 rounded-2xl bg-amber-warm text-ink font-bold flex items-center gap-2"
+                  className="btn-press shrink-0 min-h-14 px-4 rounded-2xl btn-primary-glow text-white font-bold flex items-center gap-2"
                 >
                   <Camera size={20} aria-hidden /> {t('takePhoto')}
                 </button>
@@ -354,17 +381,21 @@ export default function Home() {
         <div className="grid grid-cols-2 gap-3">
           <Link
             to="/play"
-            className="btn-press btn-lift min-h-16 rounded-3xl text-white font-bold text-lg flex items-center justify-center gap-2 shadow-[0_12px_26px_-10px_rgba(167,139,250,0.8)]"
-            style={{ background: 'linear-gradient(95deg, #7C3AED, #A78BFA)' }}
+            className="btn-press btn-lift elev-card min-h-16 rounded-3xl bg-white border border-primary/20 text-leaf font-bold text-lg flex items-center justify-center gap-2.5"
           >
-            <Puzzle size={24} aria-hidden /> {t('playTitle')}
+            <span className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#EDE9FE', color: '#7C3AED' }}>
+              <Puzzle size={22} aria-hidden />
+            </span>
+            {t('playTitle')}
           </Link>
           <Link
             to="/quiz"
-            className="btn-press btn-lift min-h-16 rounded-3xl text-white font-bold text-lg flex items-center justify-center gap-2 shadow-[0_12px_26px_-10px_rgba(56,189,248,0.8)]"
-            style={{ background: 'linear-gradient(95deg, #0284C7, #38BDF8)' }}
+            className="btn-press btn-lift elev-card min-h-16 rounded-3xl bg-white border border-primary/20 text-leaf font-bold text-lg flex items-center justify-center gap-2.5"
           >
-            <Gamepad2 size={24} aria-hidden /> {t('quizTitle')}
+            <span className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#E0F2FE', color: '#0284C7' }}>
+              <Gamepad2 size={22} aria-hidden />
+            </span>
+            {t('quizTitle')}
           </Link>
         </div>
 
@@ -377,6 +408,22 @@ export default function Home() {
 
         <p className="text-center text-sm text-ink/60">{t('whoFooter')}</p>
       </section>
+    </div>
+
+    {/* Contrast band: deep green, white/gold stats */}
+    <section className="reveal w-full mt-2 lg:mt-4" style={{ background: 'linear-gradient(120deg, #0B2E1D, #14532D 70%)' }}>
+      <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-10 lg:py-14 grid grid-cols-3 gap-4 lg:gap-8 text-center">
+        {STATS.map((s) => (
+          <div key={s.label} className="flex flex-col items-center gap-1.5">
+            <span className="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-amber-warm">
+              <s.icon size={24} aria-hidden />
+            </span>
+            <span className="tnum text-3xl lg:text-5xl font-extrabold text-white leading-none mt-1">{s.value}</span>
+            <span className="text-xs lg:text-sm text-white/70 font-medium">{s.label}</span>
+          </div>
+        ))}
+      </div>
+    </section>
     </div>
   );
 }

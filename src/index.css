@@ -15,15 +15,100 @@ html, body {
   color: #1f2937;
   font-family: "Hind Siliguri", system-ui, sans-serif;
   margin: 0;
-  overflow-x: hidden;
+  overflow-x: clip; /* clip (not hidden) so position: sticky header keeps working */
 }
 
-/* ---------- screen entrance ---------- */
+/* ================= DESIGN TOKENS (premium pass) =================
+   Radius: 16 / 24 / 32 (rounded-2xl / 3xl / [2rem]) · Spacing: 8pt grid
+   Elevation: L1 hairline-soft · L2 card · L3 floating — nothing else. */
+:root {
+  --shadow-l1: 0 1px 2px rgba(31,41,55,0.05), 0 4px 14px -6px rgba(20,83,45,0.12);
+  --shadow-l2: 0 1px 2px rgba(31,41,55,0.05), 0 12px 32px -12px rgba(20,83,45,0.20), 0 24px 48px -24px rgba(245,158,11,0.14);
+  --shadow-l3: 0 2px 6px rgba(31,41,55,0.08), 0 24px 48px -16px rgba(20,83,45,0.35), 0 40px 80px -32px rgba(20,83,45,0.25);
+}
+.shadow-l1 { box-shadow: var(--shadow-l1); }
+.shadow-l3 { box-shadow: var(--shadow-l3); }
+
+h1, h2 {
+  font-family: "Plus Jakarta Sans", "Hind Siliguri", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+.tnum { font-variant-numeric: tabular-nums; }
+
+::selection { background: #1e7a46; color: #fff; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #fff9f0; }
+::-webkit-scrollbar-thumb { background: #1e7a46; border-radius: 8px; border: 2px solid #fff9f0; }
+
+/* film grain — richness, CSS only */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* frosted header after scroll */
+.header-scrolled {
+  background: rgba(255,255,255,0.78) !important;
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  color: #14532d !important;
+  border-bottom: 1px solid rgba(20,83,45,0.14);
+  box-shadow: 0 8px 30px -18px rgba(20,83,45,0.35);
+}
+.header-scrolled .logo-chip { background: rgba(30,122,70,0.12) !important; }
+.header-scrolled nav a:hover, .header-scrolled nav button:hover { background: rgba(30,122,70,0.08) !important; }
+
+/* underline-slide links */
+.link-slide {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 2px; background-repeat: no-repeat; background-position: 0 100%;
+  transition: background-size 0.25s ease;
+}
+.link-slide:hover { background-size: 100% 2px; }
+
+/* expensive card: gradient border + inner top highlight */
+.expensive-card {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(rgba(255,255,255,0.88), rgba(255,255,255,0.82)) padding-box,
+    linear-gradient(120deg, rgba(30,122,70,0.75), rgba(245,158,11,0.75)) border-box;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-l2), inset 0 1px 0 rgba(255,255,255,0.95);
+}
+.dark .expensive-card {
+  background:
+    linear-gradient(rgba(18,34,24,0.92), rgba(18,34,24,0.88)) padding-box,
+    linear-gradient(120deg, rgba(30,122,70,0.8), rgba(245,158,11,0.8)) border-box;
+}
+
+/* CTA shine sweep (transform only, long calm pause) */
+.btn-shine { position: relative; overflow: hidden; }
+.btn-shine::after {
+  content: ""; position: absolute; inset: -20% auto -20% -30%; width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.35), transparent);
+  transform: translateX(-220%) rotate(8deg);
+  animation: shine-sweep 4.8s ease-in-out infinite;
+}
+@keyframes shine-sweep {
+  0%, 62% { transform: translateX(-220%) rotate(8deg); }
+  82%, 100% { transform: translateX(560%) rotate(8deg); }
+}
+
+/* mascot stage: orbit ring */
+@keyframes orbit-spin { to { transform: rotate(360deg); } }
+@keyframes orbit-counter { to { transform: rotate(-360deg); } }
+.orbit-ring { animation: orbit-spin 30s linear infinite; }
+.orbit-chip { animation: orbit-counter 30s linear infinite; }
+
+/* scroll-triggered reveal (IntersectionObserver adds .in) */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22,1,0.36,1); }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ---------- screen entrance (route change: 250ms crossfade + 8px rise) ---------- */
 @keyframes fade-slide-up {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.screen-enter { animation: fade-slide-up 0.45s ease-out both; }
+.screen-enter { animation: fade-slide-up 0.25s ease-out both; }
 
 /* ---------- result tiles ---------- */
 @keyframes tile-pop {
@@ -96,11 +181,7 @@ html, body {
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(30, 122, 70, 0.14);
-  box-shadow:
-    0 1px 2px rgba(31, 41, 55, 0.05),
-    0 12px 32px -12px rgba(20, 83, 45, 0.20),
-    0 24px 48px -24px rgba(245, 158, 11, 0.18),
-    0 28px 56px -24px rgba(20, 83, 45, 0.14);
+  box-shadow: var(--shadow-l2), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 .app-bg {
   background-color: #fff9f0;
@@ -148,9 +229,9 @@ html, body {
   .btn-lift:hover { transform: translateY(-2px); filter: brightness(1.03); }
 }
 
-/* One consistent elevation system */
+/* One consistent elevation system (= token L2) */
 .elev-card {
-  box-shadow: 0 1px 2px rgba(31, 41, 55, 0.05), 0 10px 30px -12px rgba(20, 83, 45, 0.18);
+  box-shadow: var(--shadow-l1);
   transition: transform 0.18s ease, box-shadow 0.22s ease;
 }
 @media (hover: hover) {

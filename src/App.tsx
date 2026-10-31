@@ -58,7 +58,7 @@ function Root() {
   }, [prefs.reminder]);
 
   return (
-    <div className="w-full min-h-svh app-bg relative overflow-x-clip">
+    <div className="w-full min-h-svh app-bg relative">
       {splash && (
         <div
           aria-hidden
@@ -119,6 +119,18 @@ function Root() {
           </Shell>
         )}
       </main>
+      {prefs.onboarded && (
+        <footer className="relative w-full text-white" style={{ background: '#0B2E1D', borderTop: '2px solid rgba(245,158,11,0.65)' }}>
+          <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-6 flex items-center gap-4">
+            <Mascot mood="happy" size={44} />
+            <div className="min-w-0">
+              <p className="font-bold text-lg leading-tight">{t('appName')}</p>
+              <p className="text-sm text-white/70 leading-tight">{t('tagline')}</p>
+            </div>
+            <p className="ml-auto text-xs text-white/50 text-right hidden sm:block">{t('whoFooter')}</p>
+          </div>
+        </footer>
+      )}
     </div>
   );
 }

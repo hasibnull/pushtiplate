@@ -9,11 +9,18 @@ export default function Header() {
   const { t } = useLang();
   const [demo, setDemoState] = useState(isDemo());
   const [user, setUser] = useState<User | null>(null);
+  const [scrolled, setScrolled] = useState(false);
   const timer = useRef<number | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => onAuthChange(setUser), []);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Demo Mode: long-press (800ms) the logo (§6 Prompt 10)
   const startPress = () => {
@@ -31,7 +38,7 @@ export default function Header() {
     'min-w-14 h-14 px-2 flex flex-col sm:flex-row items-center justify-center sm:gap-2 rounded-2xl hover:bg-white/10 transition-colors';
 
   return (
-    <header className="text-white sticky top-0 z-20 shadow-md w-full" style={{ background: 'linear-gradient(100deg, #14532D 0%, #1E7A46 90%)' }}>
+    <header className={`text-white sticky top-0 z-20 shadow-md w-full transition-colors duration-300 ${scrolled ? 'header-scrolled' : ''}`} style={scrolled ? undefined : { background: 'linear-gradient(100deg, #14532D 0%, #1E7A46 90%)' }}>
       <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 h-16 lg:h-20 flex items-center justify-between gap-2">
         <button
           onPointerDown={startPress}
@@ -41,7 +48,7 @@ export default function Header() {
           className="text-left min-h-14 flex items-center gap-3 select-none btn-press"
           aria-label={t('appName')}
         >
-          <span className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center shrink-0">
+          <span className="logo-chip w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center shrink-0">
             <UtensilsCrossed size={24} aria-hidden />
           </span>
           <span className="flex flex-col justify-center">
