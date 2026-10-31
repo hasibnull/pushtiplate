@@ -14,6 +14,7 @@ import ScoreRing from '../components/ScoreRing';
 import CompareSlider from '../components/CompareSlider';
 import Mascot from '../components/Mascot';
 import Confetti from '../components/Confetti';
+import { challengeDoneToday, markChallengeDone, missionSatisfied, todaysMission } from '../lib/fun';
 
 /** Soft tint per food group (tiles). */
 const TINTS: Record<string, { bg: string; chip: string; fg: string }> = {
@@ -54,7 +55,9 @@ export default function Result() {
   const [saved, setSaved] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [tomorrowUrl, setTomorrowUrl] = useState<string | null>(initial?.tomorrowUrl ?? null);
+  const [toast, setToast] = useState(false);
   const savedOnce = useRef(false);
+  const toastedOnce = useRef(false);
 
   const { score, verdict, foodToAdd } = scorePlate(groups);
   const displayScore = useCountUp(score);
@@ -98,6 +101,18 @@ export default function Result() {
       live = false;
     };
   }, [initial, verdict, foodToAdd]);
+
+  // Daily challenge: only a REAL (live) analysis can complete today's mission
+  useEffect(() => {
+    if (!initial || initial.source !== 'live' || toastedOnce.current) return;
+    if (!challengeDoneToday() && missionSatisfied(todaysMission(), groups, score)) {
+      toastedOnce.current = true;
+      markChallengeDone();
+      setToast(true);
+      const id = window.setTimeout(() => setToast(false), 4500);
+      return () => window.clearTimeout(id);
+    }
+  }, [initial, groups, score]);
 
   if (!initial) return null;
 
@@ -340,6 +355,18 @@ export default function Result() {
           <span className="text-primary font-semibold">{t('saved')}</span>
         )}
       </div>
+
+      {toast && (
+        <div className="fixed inset-x-0 bottom-5 z-40 flex justify-center px-4 pointer-events-none">
+          <div className="screen-enter glass-card rounded-3xl pl-2 pr-6 py-2 flex items-center gap-3 shadow-2xl border-2 border-amber-warm">
+            <Mascot mood="happy" size={56} />
+            <div>
+              <p className="font-black text-leaf">{t('challengeDone')}</p>
+              <p className="text-sm text-ink/70">{todaysMission().text[lang]}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

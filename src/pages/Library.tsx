@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Baby, Flame, Salad, UtensilsCrossed, Volume2, type LucideIcon } from 'lucide-react';
+import { Baby, Flame, Gamepad2, Puzzle, Salad, UtensilsCrossed, Volume2, type LucideIcon } from 'lucide-react';
 import { FOOD_GROUPS } from '../lib/scoring';
 import { AGE_GUIDANCE, GROUP_LABEL, LIBRARY_FOODS } from '../lib/library';
 import { speakText } from '../lib/speak';
@@ -104,6 +104,23 @@ export default function Library() {
             </div>
           </Link>
         ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mt-5">
+        <Link
+          to="/play"
+          className="btn-press btn-lift min-h-16 rounded-3xl text-white font-bold text-lg flex items-center justify-center gap-2"
+          style={{ background: 'linear-gradient(95deg, #7C3AED, #A78BFA)' }}
+        >
+          <Puzzle size={24} aria-hidden /> {t('playTitle')}
+        </Link>
+        <Link
+          to="/quiz"
+          className="btn-press btn-lift min-h-16 rounded-3xl text-white font-bold text-lg flex items-center justify-center gap-2"
+          style={{ background: 'linear-gradient(95deg, #0284C7, #38BDF8)' }}
+        >
+          <Gamepad2 size={24} aria-hidden /> {t('quizTitle')}
+        </Link>
       </div>
 
       <p className="text-sm text-center text-ink/60 mt-8">{t('disclaimerLibrary')}</p>

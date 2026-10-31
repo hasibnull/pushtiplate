@@ -12,6 +12,8 @@ import Library from './pages/Library';
 import LibraryDetail from './pages/LibraryDetail';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
+import Playground from './pages/Playground';
+import Quiz from './pages/Quiz';
 import { LanguageProvider, useLang } from './lib/i18n';
 
 function Shell({ children }: { children: ReactNode }) {
@@ -111,6 +113,8 @@ function Root() {
               <Route path="/library/:id" element={<LibraryDetail />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/play" element={<Playground />} />
+              <Route path="/quiz" element={<Quiz />} />
             </Routes>
           </Shell>
         )}

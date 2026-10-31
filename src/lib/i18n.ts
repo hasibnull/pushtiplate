@@ -62,6 +62,10 @@ const bn: Dict = {
   stepPhotoDesc: 'থালার একটি ছবিই যথেষ্ট।', stepFindDesc: 'আমরা ৮ ধরনের খাবার খুঁজে দেখি।', stepListenDesc: 'ফলাফল শুনুন আপনার নিজের ভাষায়।',
   listenHow: 'শুনুন: কীভাবে কাজ করে', statGroups: 'ধরনের খাবার', statLangs: 'ভাষা', statPhoto: 'ছবিই যথেষ্ট',
   sampleHero: 'ভাত ও ডালের থালা', sampleGood: 'নানা রঙের থালা', sampleLow: 'শুধু ভাত-আলুর থালা',
+  playTitle: 'নিজের প্লেট সাজাও', clearPlate: 'পরিষ্কার করো', addNext: 'এরপর যোগ করো', tapFoodHint: 'নিচের খাবারে চাপ দাও',
+  challengeTitle: 'আজকের চ্যালেঞ্জ', challengeDone: 'চ্যালেঞ্জ শেষ!',
+  quizTitle: 'পুষ্টি কুইজ', correct: 'ঠিক হয়েছে!', rightAnswer: 'সঠিক উত্তর:', playAgain: 'আবার খেলো',
+  seeLibraryLine: 'আরও জানতে লাইব্রেরি দেখো', youGot: 'তুমি পেয়েছ', of: '/',
 };
 const en: Dict = {
   appName: 'PushtiPlate', tagline: "Today's plate, tomorrow's strength",
@@ -107,6 +111,10 @@ const en: Dict = {
   stepPhotoDesc: 'One photo of the plate is enough.', stepFindDesc: 'We look for 8 kinds of food.', stepListenDesc: 'Hear the result in your own language.',
   listenHow: 'Listen: how it works', statGroups: 'food groups', statLangs: 'languages', statPhoto: 'photo is enough',
   sampleHero: 'Rice & dal plate', sampleGood: 'Colourful plate', sampleLow: 'Only rice & potato',
+  playTitle: 'Build your own plate', clearPlate: 'Clear', addNext: 'Add next', tapFoodHint: 'Tap a food below',
+  challengeTitle: "Today's challenge", challengeDone: 'Challenge done!',
+  quizTitle: 'Nutrition Quiz', correct: 'Correct!', rightAnswer: 'Right answer:', playAgain: 'Play again',
+  seeLibraryLine: 'See the Library to learn more', youGot: 'You got', of: '/',
 };
 const hi: Dict = {
   appName: 'पुष्टि थाली', tagline: 'आज की थाली, कल की ताकत',
@@ -152,6 +160,10 @@ const hi: Dict = {
   stepPhotoDesc: 'थाली की एक फोटो ही काफी है।', stepFindDesc: 'हम ८ तरह के खाने ढूँढते हैं।', stepListenDesc: 'नतीजा अपनी भाषा में सुनें।',
   listenHow: 'सुनें: यह कैसे काम करता है', statGroups: 'तरह के खाने', statLangs: 'भाषाएँ', statPhoto: 'फोटो ही काफी',
   sampleHero: 'चावल-दाल की थाली', sampleGood: 'रंग-बिरंगी थाली', sampleLow: 'सिर्फ़ चावल-आलू',
+  playTitle: 'अपनी थाली सजाओ', clearPlate: 'साफ़ करो', addNext: 'अगला जोड़ो', tapFoodHint: 'नीचे खाने पर दबाओ',
+  challengeTitle: 'आज की चुनौती', challengeDone: 'चुनौती पूरी!',
+  quizTitle: 'पोषण क्विज़', correct: 'सही जवाब!', rightAnswer: 'सही उत्तर:', playAgain: 'फिर खेलो',
+  seeLibraryLine: 'और जानने के लिए लाइब्रेरी देखो', youGot: 'तुम्हें मिले', of: '/',
 };
 const STRINGS: Record<Lang, Dict> = { bn, en, hi };
 

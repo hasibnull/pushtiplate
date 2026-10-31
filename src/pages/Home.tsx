@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Camera, Images, Languages, Lock, Play, Search, UtensilsCrossed, Volume2 } from 'lucide-react';
+import { BookOpen, Camera, Gamepad2, Images, Languages, Lock, Play, Puzzle, Search, Trophy, UtensilsCrossed, Volume2 } from 'lucide-react';
 import { getAge, setAge, setPlate, isDemo } from '../lib/store';
 import { SAMPLES } from '../lib/demo';
 import { downscale, analyzePlate } from '../lib/api';
@@ -10,6 +10,7 @@ import { useLang } from '../lib/i18n';
 import AnalysingOverlay from '../components/AnalysingOverlay';
 import Mascot from '../components/Mascot';
 import FoodIcon from '../components/FoodIcon';
+import { challengeDoneToday, todaysMission } from '../lib/fun';
 
 const AGES = [
   { range: '6–11', months: 9 },
@@ -235,6 +236,7 @@ export default function Home() {
         </div>
 
         <button
+          id="camera-btn"
           onClick={() => cameraRef.current?.click()}
           className="btn-press btn-lift btn-primary-glow w-full h-24 rounded-3xl text-white text-2xl font-bold flex items-center justify-center gap-3"
         >
@@ -322,6 +324,49 @@ export default function Home() {
         >
           <Play size={26} aria-hidden /> {t('demoButton')}
         </button>
+
+        {/* Daily challenge (Feature 2) */}
+        {(() => {
+          const mission = todaysMission();
+          const done = challengeDoneToday();
+          return (
+            <section className={`rounded-3xl p-4 flex items-center gap-4 border-2 ${done ? 'bg-primary/10 border-primary/40' : 'bg-amber-warm/10 border-amber-warm/50'}`}>
+              <Mascot mood={done ? 'happy' : 'encourage'} size={58} />
+              <div className="grow min-w-0">
+                <p className="font-bold text-leaf flex items-center gap-2">
+                  <Trophy size={19} className="text-amber-warm" aria-hidden /> {t('challengeTitle')}
+                </p>
+                <p className="font-semibold">{done ? t('challengeDone') : mission.text[prefs.lang]}</p>
+              </div>
+              {!done && (
+                <button
+                  onClick={() => document.getElementById('camera-btn')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  className="btn-press shrink-0 min-h-14 px-4 rounded-2xl bg-amber-warm text-ink font-bold flex items-center gap-2"
+                >
+                  <Camera size={20} aria-hidden /> {t('takePhoto')}
+                </button>
+              )}
+            </section>
+          );
+        })()}
+
+        {/* Playground + Quiz links (Features 1 & 3) */}
+        <div className="grid grid-cols-2 gap-3">
+          <Link
+            to="/play"
+            className="btn-press btn-lift min-h-16 rounded-3xl text-white font-bold text-lg flex items-center justify-center gap-2 shadow-[0_12px_26px_-10px_rgba(167,139,250,0.8)]"
+            style={{ background: 'linear-gradient(95deg, #7C3AED, #A78BFA)' }}
+          >
+            <Puzzle size={24} aria-hidden /> {t('playTitle')}
+          </Link>
+          <Link
+            to="/quiz"
+            className="btn-press btn-lift min-h-16 rounded-3xl text-white font-bold text-lg flex items-center justify-center gap-2 shadow-[0_12px_26px_-10px_rgba(56,189,248,0.8)]"
+            style={{ background: 'linear-gradient(95deg, #0284C7, #38BDF8)' }}
+          >
+            <Gamepad2 size={24} aria-hidden /> {t('quizTitle')}
+          </Link>
+        </div>
 
         <Link
           to="/library"
