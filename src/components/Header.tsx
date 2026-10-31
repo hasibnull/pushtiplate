@@ -22,7 +22,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-gradient-to-r from-leaf via-[#1a6b3c] to-primary text-white sticky top-0 z-20 shadow-md w-full">
+    <header className="text-white sticky top-0 z-20 shadow-md w-full" style={{ background: 'linear-gradient(100deg, #14532D 0%, #1E7A46 90%)' }}>
       <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 h-16 lg:h-20 flex items-center justify-between gap-2">
         <button
           onPointerDown={startPress}

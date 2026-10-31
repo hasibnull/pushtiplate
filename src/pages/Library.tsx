@@ -47,7 +47,7 @@ export default function Library() {
             key={f.id}
             to={`/library/${f.id}`}
             style={{ animationDelay: `${Math.min(i, 10) * 50}ms` }}
-            className="tile-pop elev-card bg-white rounded-3xl overflow-hidden flex flex-col min-w-0"
+            className="tile-pop elev-card glass-card rounded-3xl overflow-hidden flex flex-col min-w-0"
           >
             {f.image ? (
               <img src={f.image} alt={f.english} className="w-full aspect-square object-cover" loading="lazy" />

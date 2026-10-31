@@ -1,12 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Check, HeartHandshake, RotateCcw, Volume2 } from 'lucide-react';
-import { FOOD_GROUPS, scorePlate, toBangla } from '../lib/scoring';
+import { BadgeCheck, Check, HeartHandshake, PlusCircle, RotateCcw, Volume2 } from 'lucide-react';
+import { FOOD_GROUPS, scorePlate } from '../lib/scoring';
 import { getPlate } from '../lib/store';
 import { saveAudit } from '../lib/supabase';
 import { tomorrowPlate } from '../lib/api';
 import { speak } from '../lib/speak';
 import FoodIcon from '../components/FoodIcon';
+import ScoreRing from '../components/ScoreRing';
+import CompareSlider from '../components/CompareSlider';
+
+/** Soft tint per food group (tiles). */
+const TINTS: Record<string, { bg: string; chip: string; fg: string }> = {
+  breast_milk: { bg: '#FCE7F3', chip: '#F9A8D4', fg: '#9D174D' },
+  grains: { bg: '#FEF3C7', chip: '#FCD34D', fg: '#92400E' },
+  legumes: { bg: '#FFEDD5', chip: '#FDBA74', fg: '#9A3412' },
+  dairy: { bg: '#E0F2FE', chip: '#7DD3FC', fg: '#075985' },
+  flesh: { bg: '#FFE4E6', chip: '#FDA4AF', fg: '#9F1239' },
+  eggs: { bg: '#FEF9C3', chip: '#FDE047', fg: '#854D0E' },
+  vit_a_fruits_veg: { bg: '#FFEDD5', chip: '#FDBA74', fg: '#7C2D12' },
+  other_fruits_veg: { bg: '#DCFCE7', chip: '#86EFAC', fg: '#166534' },
+};
 
 /** Display-only count-up (0 → score). Scoring itself is unchanged. */
 function useCountUp(target: number, ms = 800) {
@@ -80,10 +94,28 @@ export default function Result() {
 
   const banner =
     verdict === 'good'
-      ? { cls: 'bg-primary text-white', text: 'দারুণ!' }
+      ? {
+          cls: 'text-white',
+          bg: 'linear-gradient(100deg, #14532D, #1E7A46)',
+          text: 'দারুণ!',
+          Icon: BadgeCheck,
+          ring: '#1E7A46',
+        }
       : verdict === 'see_worker'
-        ? { cls: 'bg-[#FDECEA] text-soft-red', text: 'আর একটু হলেই হবে' }
-        : { cls: 'bg-amber-warm text-ink', text: 'আর একটু হলেই হবে' };
+        ? {
+            cls: 'text-white',
+            bg: 'linear-gradient(100deg, #B03A2E, #DC4A3A)',
+            text: 'আর একটু হলেই হবে',
+            Icon: HeartHandshake,
+            ring: '#DC4A3A',
+          }
+        : {
+            cls: 'text-ink',
+            bg: 'linear-gradient(100deg, #FBBF24, #F59E0B)',
+            text: 'আর একটু হলেই হবে',
+            Icon: PlusCircle,
+            ring: '#F59E0B',
+          };
 
   const showTomorrow = verdict !== 'good' && foodToAdd;
 
@@ -91,7 +123,7 @@ export default function Result() {
     <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-10 flex flex-col gap-5 lg:gap-8">
       <div className="grid gap-5 lg:gap-8 lg:grid-cols-2 lg:items-stretch">
         {/* Left: plate photo */}
-        <figure className="bg-white rounded-3xl elev-card p-3 flex min-w-0">
+        <figure className="glass-card rounded-3xl p-3 flex min-w-0">
           <img
             src={initial.photoUrl}
             alt="থালা"
@@ -101,38 +133,56 @@ export default function Result() {
 
         {/* Right: banner, score, tiles, listen */}
         <section className="flex flex-col gap-5">
-          <div className={`rounded-3xl px-4 py-4 text-center text-2xl font-bold shadow-sm ${banner.cls}`}>
-            {banner.text}
-          </div>
-
-          <div className="text-center bg-white rounded-3xl shadow-sm py-4">
-            <div className="text-[64px] lg:text-[88px] leading-none font-bold text-leaf tabular-nums">
-              {toBangla(displayScore)} / {toBangla(8)}
+          <div className="glass-card rounded-3xl p-5 flex flex-col sm:flex-row items-center gap-5">
+            <ScoreRing score={score} color={banner.ring} displayScore={displayScore} />
+            <div
+              className={`rounded-3xl px-5 py-4 flex sm:flex-col items-center gap-3 text-center grow w-full ${banner.cls}`}
+              style={{ background: banner.bg }}
+            >
+              <banner.Icon size={52} strokeWidth={1.6} aria-hidden />
+              <span className="text-2xl lg:text-3xl font-bold">{banner.text}</span>
             </div>
-            <p className="text-lg text-ink/60 mt-1">ধরনের খাবার</p>
           </div>
 
           <div>
             <div className="grid grid-cols-4 gap-2 lg:gap-3">
               {FOOD_GROUPS.map((g, i) => {
                 const present = groups.includes(g.id);
+                const tint = TINTS[g.id];
                 return (
                   <button
                     key={g.id}
                     onClick={() => toggle(g.id)}
-                    style={{ animationDelay: `${i * 70}ms` }}
-                    className={`tile-pop btn-press relative h-full min-h-[84px] lg:min-h-[104px] rounded-2xl bg-white shadow-sm p-2 flex flex-col items-center justify-center gap-1 text-leaf ${
-                      present ? '' : 'opacity-40 grayscale'
+                    style={{
+                      animationDelay: `${i * 70}ms`,
+                      ...(present ? { background: tint.bg } : {}),
+                    }}
+                    className={`tile-pop tile-tap btn-press relative h-full min-h-[84px] lg:min-h-[104px] rounded-2xl p-2 flex flex-col items-center justify-center gap-1.5 ${
+                      present
+                        ? 'shadow-sm border border-white/70'
+                        : 'bg-white/70 border-2 border-dashed border-ink/20'
                     }`}
                     aria-pressed={present}
                   >
                     {present && (
-                      <span className="check-pop absolute top-1.5 right-1.5 bg-primary text-white w-5 h-5 rounded-full flex items-center justify-center">
+                      <span className="check-pop absolute top-1.5 right-1.5 bg-primary text-white w-5 h-5 rounded-full flex items-center justify-center z-10">
                         <Check size={13} strokeWidth={3.5} aria-hidden />
                       </span>
                     )}
-                    <FoodIcon group={g.id} size={32} />
-                    <span className="text-[11px] lg:text-xs leading-tight text-center font-medium text-ink">
+                    <span
+                      className="w-11 h-11 lg:w-12 lg:h-12 rounded-2xl flex items-center justify-center"
+                      style={{
+                        background: present ? tint.chip : 'rgba(31,41,55,0.06)',
+                        color: present ? tint.fg : 'rgba(31,41,55,0.38)',
+                      }}
+                    >
+                      <FoodIcon group={g.id} size={28} />
+                    </span>
+                    <span
+                      className={`text-[11px] lg:text-xs leading-tight text-center font-medium ${
+                        present ? 'text-ink' : 'text-ink/45'
+                      }`}
+                    >
                       {g.label}
                     </span>
                   </button>
@@ -144,7 +194,7 @@ export default function Result() {
 
           <button
             onClick={() => speak(verdict, score, foodToAdd, setSpeaking)}
-            className={`btn-press btn-lift w-full min-h-16 rounded-3xl bg-primary text-white text-2xl font-bold shadow-lg flex items-center justify-center gap-3 ${speaking ? 'speaking' : ''}`}
+            className={`btn-press btn-lift btn-primary-glow w-full min-h-16 rounded-3xl text-white text-2xl font-bold flex items-center justify-center gap-3 ${speaking ? 'speaking' : ''}`}
           >
             <Volume2 size={30} aria-hidden /> শুনুন
           </button>
@@ -152,27 +202,19 @@ export default function Result() {
       </div>
 
       {showTomorrow && (
-        <section className="bg-white rounded-3xl elev-card p-4 lg:p-6 fade-in-soft">
-          <div className="grid grid-cols-2 gap-3 lg:gap-5">
-            <figure>
-              <img src={initial.photoUrl} alt="আজ" className="w-full aspect-square lg:aspect-[16/10] object-cover rounded-2xl" />
-              <figcaption className="text-center font-bold text-lg mt-2">আজ</figcaption>
-            </figure>
-            <figure>
-              {tomorrowUrl ? (
-                <img
-                  src={tomorrowUrl}
-                  alt="কাল"
-                  className="added-glow w-full aspect-square lg:aspect-[16/10] object-cover rounded-2xl"
-                />
+        <section className="glass-card rounded-3xl p-4 lg:p-6 fade-in-soft">
+          <CompareSlider
+            beforeSrc={initial.photoUrl}
+            after={
+              tomorrowUrl ? (
+                <img src={tomorrowUrl} alt="আগামীকাল" className="w-full h-full object-cover" draggable={false} />
               ) : (
-                <div className="added-glow w-full aspect-square lg:aspect-[16/10] rounded-2xl bg-cream text-amber-warm flex items-center justify-center">
-                  <FoodIcon group={foodToAdd.group} size={72} />
+                <div className="w-full h-full bg-cream text-amber-warm flex items-center justify-center">
+                  <FoodIcon group={foodToAdd.group} size={96} />
                 </div>
-              )}
-              <figcaption className="text-center font-bold text-lg mt-2">কাল</figcaption>
-            </figure>
-          </div>
+              )
+            }
+          />
           <p className="flex items-center justify-center gap-2 text-center text-xl font-semibold mt-4">
             কাল যোগ করুন:
             <span className="text-amber-warm inline-flex">

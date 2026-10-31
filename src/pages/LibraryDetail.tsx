@@ -33,7 +33,7 @@ export default function LibraryDetail() {
           </div>
         )}
 
-        <section className="bg-white rounded-3xl elev-card p-5 lg:p-8 flex flex-col gap-4">
+        <section className="glass-card rounded-3xl p-5 lg:p-8 flex flex-col gap-4">
           <div>
             <h1 className="text-3xl lg:text-4xl font-bold text-leaf">{food.bangla}</h1>
             <p className="text-lg text-ink/60">{food.english}</p>
@@ -58,7 +58,7 @@ export default function LibraryDetail() {
           </dl>
           <button
             onClick={() => speakText(spoken, setSpeaking)}
-            className={`btn-press btn-lift w-full min-h-16 rounded-3xl bg-primary text-white text-2xl font-bold shadow-lg flex items-center justify-center gap-3 ${speaking ? 'speaking' : ''}`}
+            className={`btn-press btn-lift btn-primary-glow w-full min-h-16 rounded-3xl text-white text-2xl font-bold flex items-center justify-center gap-3 ${speaking ? 'speaking' : ''}`}
           >
             <Volume2 size={30} aria-hidden /> শুনুন
           </button>

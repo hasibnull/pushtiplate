@@ -101,7 +101,7 @@ export default function Home() {
           {STEPS.map((s, i) => (
             <li
               key={s.text}
-              className="flex items-center gap-4 bg-white rounded-3xl shadow-sm px-4 py-3 min-h-16"
+              className="flex items-center gap-4 glass-card rounded-3xl px-4 py-3 min-h-16"
             >
               <span className="w-11 h-11 shrink-0 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
                 <s.icon size={24} aria-hidden />
@@ -120,7 +120,7 @@ export default function Home() {
 
         <Link
           to="/library"
-          className="elev-card btn-press hidden lg:flex items-center gap-4 bg-white rounded-3xl px-5 py-4 min-h-16"
+          className="elev-card btn-press hidden lg:flex items-center gap-4 glass-card rounded-3xl px-5 py-4 min-h-16"
         >
           <span className="w-12 h-12 shrink-0 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
             <BookOpen size={26} aria-hidden />
@@ -130,7 +130,7 @@ export default function Home() {
       </section>
 
       {/* Right: camera / upload card */}
-      <section className="bg-white rounded-3xl elev-card p-4 lg:p-6 flex flex-col gap-5 min-w-0">
+      <section className="glass-card rounded-3xl p-4 lg:p-6 flex flex-col gap-5 min-w-0">
         <div>
           <p className="text-lg font-semibold text-leaf mb-3">শিশুর বয়স কত?</p>
           <div className="flex gap-2">
@@ -152,7 +152,7 @@ export default function Home() {
 
         <button
           onClick={() => cameraRef.current?.click()}
-          className="btn-press btn-lift w-full h-24 rounded-3xl bg-primary text-white text-2xl font-bold shadow-lg flex items-center justify-center gap-3"
+          className="btn-press btn-lift btn-primary-glow w-full h-24 rounded-3xl text-white text-2xl font-bold flex items-center justify-center gap-3"
         >
           <Camera size={38} aria-hidden /> থালার ছবি তুলুন
         </button>
@@ -198,13 +198,13 @@ export default function Home() {
               <button
                 key={key}
                 onClick={() => onSample(key)}
-                className="btn-press rounded-3xl overflow-hidden bg-white shadow min-h-14 ring-1 ring-black/5"
+                className="btn-press group rounded-3xl overflow-hidden bg-white shadow min-h-14 ring-primary/0 hover:ring-4 hover:ring-primary/50 focus-visible:ring-4 focus-visible:ring-primary/60 transition-shadow"
                 aria-label={`নমুনা ${key}`}
               >
                 <img
                   src={SAMPLES[key].photoUrl}
                   alt=""
-                  className="w-full aspect-square object-cover"
+                  className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => ((e.target as HTMLImageElement).style.opacity = '0.25')}
                 />
               </button>

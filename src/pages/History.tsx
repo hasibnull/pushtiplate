@@ -42,7 +42,7 @@ export default function History() {
             <article
               key={r.id}
               style={{ animationDelay: `${i * 60}ms` }}
-              className="tile-pop elev-card bg-white rounded-3xl p-3 flex items-center gap-3 min-h-[88px]"
+              className="tile-pop elev-card glass-card rounded-3xl p-3 flex items-center gap-3 min-h-[88px]"
             >
               {thumbs[r.id] ? (
                 <img src={thumbs[r.id]} alt="" className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl object-cover shrink-0" />

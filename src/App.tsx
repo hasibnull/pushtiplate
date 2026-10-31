@@ -19,9 +19,14 @@ function Shell({ children }: { children: ReactNode }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="w-full min-h-svh bg-cream">
+      <div className="w-full min-h-svh app-bg relative overflow-x-clip">
+        {/* soft hero color blobs (decorative) */}
+        <div aria-hidden className="absolute inset-x-0 top-16 h-[420px] overflow-hidden pointer-events-none">
+          <div className="blob w-96 h-96 -left-24 top-0" style={{ background: 'rgba(30,122,70,0.13)' }} />
+          <div className="blob w-80 h-80 right-[-4rem] top-16" style={{ background: 'rgba(245,158,11,0.12)', animationDelay: '-6s' }} />
+        </div>
         <Header />
-        <main className="w-full">
+        <main className="w-full relative">
           <Shell>
             <Routes>
               <Route path="/" element={<Home />} />
