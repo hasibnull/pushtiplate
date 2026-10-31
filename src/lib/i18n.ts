@@ -59,6 +59,9 @@ const bn: Dict = {
   guideTitle: 'ছবি তোলার আগে', guideLight: 'ভালো আলোতে তুলুন', guideFill: 'থালা পুরো ফ্রেমে রাখুন', guideTop: 'ঠিক ওপর থেকে তুলুন', guideGo: 'ক্যামেরা খুলুন',
   shareButton: 'শেয়ার করুন', copied: 'কপি হয়েছে ✓', workerNote: 'সন্দেহ হলে স্বাস্থ্য সেবিকাকে দেখান।',
   on: 'চালু', off: 'বন্ধ', child: 'শিশু',
+  stepPhotoDesc: 'থালার একটি ছবিই যথেষ্ট।', stepFindDesc: 'আমরা ৮ ধরনের খাবার খুঁজে দেখি।', stepListenDesc: 'ফলাফল শুনুন আপনার নিজের ভাষায়।',
+  listenHow: 'শুনুন: কীভাবে কাজ করে', statGroups: 'ধরনের খাবার', statLangs: 'ভাষা', statPhoto: 'ছবিই যথেষ্ট',
+  sampleHero: 'ভাত ও ডালের থালা', sampleGood: 'নানা রঙের থালা', sampleLow: 'শুধু ভাত-আলুর থালা',
 };
 const en: Dict = {
   appName: 'PushtiPlate', tagline: "Today's plate, tomorrow's strength",
@@ -101,6 +104,9 @@ const en: Dict = {
   guideTitle: 'Before you take the photo', guideLight: 'Use good light', guideFill: 'Fill the frame with the plate', guideTop: 'Take it from directly above', guideGo: 'Open camera',
   shareButton: 'Share', copied: 'Copied ✓', workerNote: 'If unsure, show your health worker.',
   on: 'On', off: 'Off', child: 'Child',
+  stepPhotoDesc: 'One photo of the plate is enough.', stepFindDesc: 'We look for 8 kinds of food.', stepListenDesc: 'Hear the result in your own language.',
+  listenHow: 'Listen: how it works', statGroups: 'food groups', statLangs: 'languages', statPhoto: 'photo is enough',
+  sampleHero: 'Rice & dal plate', sampleGood: 'Colourful plate', sampleLow: 'Only rice & potato',
 };
 const hi: Dict = {
   appName: 'पुष्टि थाली', tagline: 'आज की थाली, कल की ताकत',
@@ -143,6 +149,9 @@ const hi: Dict = {
   guideTitle: 'फोटो लेने से पहले', guideLight: 'अच्छी रोशनी में लें', guideFill: 'थाली पूरे फ्रेम में रखें', guideTop: 'बिल्कुल ऊपर से लें', guideGo: 'कैमरा खोलें',
   shareButton: 'शेयर करें', copied: 'कॉपी हुआ ✓', workerNote: 'संदेह हो तो स्वास्थ्य सेविका को दिखाएँ।',
   on: 'चालू', off: 'बंद', child: 'बच्चा',
+  stepPhotoDesc: 'थाली की एक फोटो ही काफी है।', stepFindDesc: 'हम ८ तरह के खाने ढूँढते हैं।', stepListenDesc: 'नतीजा अपनी भाषा में सुनें।',
+  listenHow: 'सुनें: यह कैसे काम करता है', statGroups: 'तरह के खाने', statLangs: 'भाषाएँ', statPhoto: 'फोटो ही काफी',
+  sampleHero: 'चावल-दाल की थाली', sampleGood: 'रंग-बिरंगी थाली', sampleLow: 'सिर्फ़ चावल-आलू',
 };
 const STRINGS: Record<Lang, Dict> = { bn, en, hi };
 

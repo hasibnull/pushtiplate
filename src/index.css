@@ -95,16 +95,19 @@ html, body {
   background: rgba(255, 255, 255, 0.8);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(30, 122, 70, 0.14);
   box-shadow:
     0 1px 2px rgba(31, 41, 55, 0.05),
     0 12px 32px -12px rgba(20, 83, 45, 0.20),
+    0 24px 48px -24px rgba(245, 158, 11, 0.18),
     0 28px 56px -24px rgba(20, 83, 45, 0.14);
 }
 .app-bg {
   background-color: #fff9f0;
-  background-image: radial-gradient(rgba(20, 83, 45, 0.055) 1.2px, transparent 1.2px);
-  background-size: 22px 22px;
+  background-image:
+    radial-gradient(rgba(20, 83, 45, 0.055) 1.2px, transparent 1.2px),
+    linear-gradient(180deg, #fff9f0 0%, #fff1e6 100%);
+  background-size: 22px 22px, 100% 100%;
 }
 @keyframes blob-drift {
   0%, 100% { transform: translate(0, 0) scale(1); }
@@ -118,7 +121,16 @@ html, body {
 /* ---------- primary button glow ---------- */
 .btn-primary-glow {
   background: linear-gradient(180deg, #249653 0%, #1e7a46 55%, #14532d 130%);
-  box-shadow: 0 10px 26px -8px rgba(30, 122, 70, 0.55), 0 3px 8px rgba(30, 122, 70, 0.25);
+  box-shadow: 0 10px 26px -8px rgba(30, 122, 70, 0.55), 0 3px 8px rgba(30, 122, 70, 0.25), 0 14px 30px -10px rgba(245, 158, 11, 0.35);
+}
+
+/* floating tinted chips (hero stickers) */
+.float-chip { animation: mascot-float 3.6s ease-in-out infinite; }
+
+/* gradient headline word */
+.gradient-text {
+  background: linear-gradient(92deg, #14532d 10%, #1e7a46 45%, #f59e0b 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
 /* ---------- food tiles ---------- */

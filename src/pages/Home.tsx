@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Camera, Check, Images, Lock, Search, Volume2 } from 'lucide-react';
+import { BookOpen, Camera, Images, Languages, Lock, Play, Search, UtensilsCrossed, Volume2 } from 'lucide-react';
 import { getAge, setAge, setPlate, isDemo } from '../lib/store';
 import { SAMPLES } from '../lib/demo';
 import { downscale, analyzePlate } from '../lib/api';
@@ -9,12 +9,27 @@ import { speakText } from '../lib/speak';
 import { useLang } from '../lib/i18n';
 import AnalysingOverlay from '../components/AnalysingOverlay';
 import Mascot from '../components/Mascot';
+import FoodIcon from '../components/FoodIcon';
 
 const AGES = [
   { range: '6–11', months: 9 },
   { range: '12–17', months: 14 },
   { range: '18–23', months: 20 },
 ];
+
+const SAMPLE_NAMES: Record<keyof typeof SAMPLES, string> = {
+  hero: 'sampleHero',
+  good: 'sampleGood',
+  low: 'sampleLow',
+};
+
+/** Floating mini food chips around the mascot (tinted palette). */
+const FLOATERS = [
+  { group: 'eggs', bg: '#FEF9C3', fg: '#854D0E', cls: 'left-0 top-2', dur: '3.4s', delay: '0s' },
+  { group: 'flesh', bg: '#FFE4E6', fg: '#9F1239', cls: 'right-1 top-8', dur: '4.1s', delay: '-1.2s' },
+  { group: 'other_fruits_veg', bg: '#DCFCE7', fg: '#166534', cls: 'left-3 bottom-1', dur: '3.8s', delay: '-0.6s' },
+  { group: 'vit_a_fruits_veg', bg: '#FFEDD5', fg: '#9A3412', cls: 'right-3 bottom-3', dur: '4.4s', delay: '-2s' },
+] as const;
 
 type Phase = 'idle' | 'uploading' | 'analysing' | 'error';
 
@@ -31,9 +46,15 @@ export default function Home() {
   const pendingFile = useRef<File | null>(null);
 
   const STEPS = [
-    { icon: Camera, text: t('takePhoto') },
-    { icon: Search, text: t('findingFoods') },
-    { icon: Volume2, text: t('listen') },
+    { icon: Camera, bg: '#E0F2FE', fg: '#0284C7', title: t('takePhoto'), desc: t('stepPhotoDesc') },
+    { icon: Search, bg: '#EDE9FE', fg: '#7C3AED', title: t('findingFoods'), desc: t('stepFindDesc') },
+    { icon: Volume2, bg: '#FFE4E6', fg: '#E11D48', title: t('listen'), desc: t('stepListenDesc') },
+  ];
+
+  const STATS = [
+    { icon: UtensilsCrossed, bg: '#DCFCE7', fg: '#15803D', value: num(8), label: t('statGroups') },
+    { icon: Languages, bg: '#EDE9FE', fg: '#7C3AED', value: num(3), label: t('statLangs') },
+    { icon: Camera, bg: '#E0F2FE', fg: '#0284C7', value: num(1), label: t('statPhoto') },
   ];
 
   const pickAge = (months: number) => {
@@ -96,48 +117,93 @@ export default function Home() {
 
   return (
     <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-12 grid gap-8 lg:grid-cols-2 lg:gap-12 lg:items-start">
-      {/* Left: intro + how it works (desktop hero) */}
-      <section className="hidden lg:flex flex-col gap-6 lg:pt-4">
-        <div className="flex items-end gap-4">
+      {/* Left: intro, how-it-works step cards, impact strip (desktop hero) */}
+      <section className="hidden lg:flex flex-col gap-5 lg:pt-2">
+        <div className="flex items-center gap-5">
           <div>
-            <h1 className="text-4xl lg:text-5xl font-bold text-leaf leading-tight">{t('appName')}</h1>
+            <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+              <span className="gradient-text">{t('appName')}</span>
+            </h1>
             <p className="text-lg text-ink/70 mt-1">{t('tagline')}</p>
+            <p className="text-sm text-ink/60 flex items-center gap-2 mt-3">
+              <Lock size={15} aria-hidden /> {t('privacyLine')}
+            </p>
           </div>
-          <Mascot mood="idle" size={96} />
+          <div className="relative shrink-0 px-8 py-3">
+            <Mascot mood="idle" size={124} />
+            {FLOATERS.map((f) => (
+              <span
+                key={f.group}
+                aria-hidden
+                className={`float-chip absolute ${f.cls} w-11 h-11 rounded-2xl flex items-center justify-center shadow-md`}
+                style={{ background: f.bg, color: f.fg, animationDuration: f.dur, animationDelay: f.delay }}
+              >
+                <FoodIcon group={f.group} size={23} />
+              </span>
+            ))}
+          </div>
         </div>
-        <ol className="flex flex-col gap-3">
-          {STEPS.map((s, i) => (
-            <li
-              key={s.text}
-              className="flex items-center gap-4 glass-card rounded-3xl px-4 py-3 min-h-16"
-            >
-              <span className="w-11 h-11 shrink-0 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-                <s.icon size={24} aria-hidden />
-              </span>
-              <span className="font-semibold text-lg">{s.text}</span>
-              <span className="ml-auto w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center shrink-0">
-                <Check size={16} aria-hidden />
-              </span>
-              <span className="sr-only">{i + 1}</span>
-            </li>
-          ))}
-        </ol>
-        <p className="hidden lg:flex text-sm text-ink/70 items-center gap-2 max-w-prose">
-          <Lock size={16} aria-hidden /> {t('privacyLine')}
-        </p>
+
+        <div className="relative">
+          <div aria-hidden className="absolute left-[30px] top-8 bottom-8 border-l-2 border-dashed border-primary/30" />
+          <ol className="flex flex-col gap-3 relative">
+            {STEPS.map((s, i) => (
+              <li
+                key={s.title}
+                style={{ animationDelay: `${i * 140}ms` }}
+                className="screen-enter glass-card rounded-3xl p-4 flex items-center gap-4 min-h-20"
+              >
+                <span
+                  className="w-14 h-14 shrink-0 rounded-2xl flex items-center justify-center shadow-inner"
+                  style={{ background: s.bg, color: s.fg }}
+                >
+                  <s.icon size={29} aria-hidden />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-bold text-xl text-leaf">
+                    {num(i + 1)}. {s.title}
+                  </span>
+                  <span className="block text-sm text-ink/60">{s.desc}</span>
+                </span>
+                <span
+                  className="check-pop ml-auto w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shrink-0"
+                  style={{ animationDelay: `${0.35 + i * 0.18}s` }}
+                  aria-hidden
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
 
         <button
           onClick={() => speakText(t('stepsListen'), setSpeaking, prefs.lang)}
-          className={`btn-press btn-lift btn-primary-glow hidden lg:flex items-center justify-center gap-3 w-full min-h-16 rounded-3xl text-white text-xl font-bold ${speaking ? 'speaking' : ''}`}
+          className={`btn-press self-start min-h-14 pl-2 pr-6 rounded-full border-2 border-[#FB7185]/50 bg-[#FFE4E6] text-[#9F1239] font-bold text-lg flex items-center gap-3 ${speaking ? 'speaking' : ''}`}
         >
-          <Volume2 size={26} aria-hidden /> {t('listen')}
+          <span className="w-10 h-10 rounded-full bg-[#FB7185] text-white flex items-center justify-center">
+            <Volume2 size={21} aria-hidden />
+          </span>
+          {t('listenHow')}
         </button>
+
+        <div className="grid grid-cols-3 gap-3">
+          {STATS.map((s) => (
+            <div key={s.label} className="glass-card rounded-3xl p-3.5 flex flex-col items-center gap-1 text-center">
+              <span className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: s.bg, color: s.fg }}>
+                <s.icon size={23} aria-hidden />
+              </span>
+              <span className="text-2xl font-bold text-leaf leading-none mt-1">{s.value}</span>
+              <span className="text-xs text-ink/60 font-medium">{s.label}</span>
+            </div>
+          ))}
+        </div>
 
         <Link
           to="/library"
-          className="elev-card btn-press hidden lg:flex items-center gap-4 glass-card rounded-3xl px-5 py-4 min-h-16"
+          className="elev-card btn-press flex items-center gap-4 glass-card rounded-3xl px-5 py-4 min-h-16"
         >
-          <span className="w-12 h-12 shrink-0 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+          <span className="w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center" style={{ background: '#FFEDD5', color: '#EA580C' }}>
             <BookOpen size={26} aria-hidden />
           </span>
           <span className="font-bold text-xl text-leaf">{t('library')}</span>
@@ -145,8 +211,9 @@ export default function Home() {
       </section>
 
       {/* Right: camera / upload card */}
-      <section className="glass-card rounded-3xl p-4 lg:p-6 flex flex-col gap-5 min-w-0">
-        <div className="lg:hidden flex justify-center -mb-1"><Mascot mood="idle" size={76} /></div>
+      <section className="glass-card rounded-3xl p-4 lg:p-6 flex flex-col gap-5 min-w-0 relative overflow-hidden">
+        <div aria-hidden className="absolute inset-x-0 top-0 h-2" style={{ background: 'linear-gradient(90deg, #1E7A46, #F59E0B, #FB7185, #38BDF8)' }} />
+        <div className="lg:hidden flex justify-center -mb-1 pt-1"><Mascot mood="idle" size={76} /></div>
         <div>
           <p className="text-lg font-semibold text-leaf mb-3">{t('ageQuestion')}</p>
           <div className="flex gap-2">
@@ -154,11 +221,12 @@ export default function Home() {
               <button
                 key={a.range}
                 onClick={() => pickAge(a.months)}
-                className={`btn-press flex-1 min-h-14 rounded-2xl text-lg font-semibold border-2 transition-colors ${
+                className={`btn-press flex-1 min-h-14 rounded-2xl text-lg font-semibold border-2 transition-all ${
                   age === a.months
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-white text-ink border-primary/30 hover:border-primary'
+                    ? 'text-white border-transparent shadow-[0_10px_24px_-8px_rgba(30,122,70,0.65)]'
+                    : 'bg-white text-ink border-primary/30 hover:border-amber-warm hover:bg-[#FFF7E8]'
                 }`}
+                style={age === a.months ? { background: 'linear-gradient(180deg, #249653, #14532D)' } : undefined}
               >
                 {num(a.range)} {t('months')}
               </button>
@@ -209,9 +277,12 @@ export default function Home() {
 
         <button
           onClick={() => speakText(t('stepsListen'), setSpeaking, prefs.lang)}
-          className={`btn-press btn-lift btn-primary-glow lg:hidden w-full min-h-16 rounded-3xl text-white text-xl font-bold flex items-center justify-center gap-3 ${speaking ? 'speaking' : ''}`}
+          className={`btn-press lg:hidden self-center min-h-14 pl-2 pr-6 rounded-full border-2 border-[#FB7185]/50 bg-[#FFE4E6] text-[#9F1239] font-bold text-lg flex items-center gap-3 ${speaking ? 'speaking' : ''}`}
         >
-          <Volume2 size={26} aria-hidden /> {t('listen')}
+          <span className="w-10 h-10 rounded-full bg-[#FB7185] text-white flex items-center justify-center">
+            <Volume2 size={21} aria-hidden />
+          </span>
+          {t('listenHow')}
         </button>
 
         <div>
@@ -221,20 +292,36 @@ export default function Home() {
               <button
                 key={key}
                 onClick={() => onSample(key)}
-                className="btn-press group rounded-3xl overflow-hidden bg-white shadow min-h-14 ring-primary/0 hover:ring-4 hover:ring-primary/50 focus-visible:ring-4 focus-visible:ring-primary/60 transition-shadow"
-                aria-label={key}
+                className="btn-press group relative rounded-3xl overflow-hidden bg-white shadow elev-card min-h-14 text-left"
+                aria-label={t(SAMPLE_NAMES[key])}
               >
-                <img
-                  src={SAMPLES[key].photoUrl}
-                  alt=""
-                  className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105"
-                  onError={(e) => ((e.target as HTMLImageElement).style.opacity = '0.25')}
-                />
+                <span className="relative block overflow-hidden">
+                  <img
+                    src={SAMPLES[key].photoUrl}
+                    alt=""
+                    className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => ((e.target as HTMLImageElement).style.opacity = '0.25')}
+                  />
+                  <span className="absolute top-2 left-2 bg-amber-warm text-ink text-xs font-black rounded-full px-2 py-0.5 shadow">
+                    {num(SAMPLES[key].groups.length)}/{num(8)}
+                  </span>
+                </span>
+                <span className="block px-2.5 py-2 text-[13px] font-semibold leading-tight text-leaf">
+                  {t(SAMPLE_NAMES[key])}
+                </span>
               </button>
             ))}
           </div>
           {isDemo() && <p className="text-xs mt-2 text-ink/60">DEMO</p>}
         </div>
+
+        <button
+          onClick={() => onSample('hero')}
+          className="btn-press btn-lift w-full min-h-16 rounded-3xl text-white text-xl font-bold flex items-center justify-center gap-3 shadow-[0_12px_26px_-10px_rgba(245,158,11,0.7)]"
+          style={{ background: 'linear-gradient(95deg, #F59E0B, #FB7185)' }}
+        >
+          <Play size={26} aria-hidden /> {t('demoButton')}
+        </button>
 
         <Link
           to="/library"

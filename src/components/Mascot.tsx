@@ -1,7 +1,10 @@
+import { useId } from 'react';
+
 export type MascotMood = 'idle' | 'happy' | 'encourage' | 'caring';
 
 /** পুষ্টি বন্ধু — pure SVG/CSS mascot, no image files. Reactions by mood. */
 export default function Mascot({ mood = 'idle', size = 96 }: { mood?: MascotMood; size?: number }) {
+  const gid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const happy = mood === 'happy';
   const caring = mood === 'caring';
   return (
@@ -14,7 +17,7 @@ export default function Mascot({ mood = 'idle', size = 96 }: { mood?: MascotMood
       className={`mascot mascot-${mood} shrink-0`}
     >
       <defs>
-        <radialGradient id="mascotBody" cx="38%" cy="30%" r="80%">
+        <radialGradient id={gid} cx="38%" cy="30%" r="80%">
           <stop offset="0%" stopColor="#3FA45B" />
           <stop offset="100%" stopColor="#1E7A46" />
         </radialGradient>
@@ -25,7 +28,7 @@ export default function Mascot({ mood = 'idle', size = 96 }: { mood?: MascotMood
         <circle cx="115" cy="50" r="7" fill="#2E9E57" />
       </g>
       {/* body */}
-      <circle cx="60" cy="66" r="42" fill="url(#mascotBody)" />
+      <circle cx="60" cy="66" r="42" fill={`url(#${gid})`} />
       {/* belly highlight */}
       <ellipse cx="60" cy="82" rx="22" ry="16" fill="rgba(255,255,255,0.16)" />
       {/* leaf on head */}
