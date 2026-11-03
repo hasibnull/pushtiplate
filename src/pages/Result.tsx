@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BadgeCheck, Check, ChevronDown, Flame, HeartHandshake, PlusCircle, RotateCcw, Volume2 } from 'lucide-react';
-import { FOOD_GROUPS, GROUP_IDS, scorePlate } from '../lib/scoring';
+import { BadgeCheck, Check, ChevronDown, Flame, HeartHandshake, ListChecks, PlusCircle, RotateCcw, Sparkles, Utensils, UtensilsCrossed, Volume2 } from 'lucide-react';
+import { FOOD_GROUPS, GROUP_IDS, PRIORITY, scorePlate } from '../lib/scoring';
 import { getPlate } from '../lib/store';
 import { saveAudit } from '../lib/supabase';
 import { tomorrowPlate } from '../lib/api';
 import { speak } from '../lib/speak';
 import { useLang } from '../lib/i18n';
-import { GROUP_BENEFIT, GROUP_LABEL, GROUP_PORTION, foodById } from '../lib/library';
-import { calorieTarget, plateNutrition } from '../lib/nutrition';
+import { GROUP_BENEFIT, GROUP_LABEL, GROUP_PORTION, LIBRARY_FOODS, foodById } from '../lib/library';
+import { calorieTarget, matchFoodId, plateNutrition } from '../lib/nutrition';
 import FoodIcon from '../components/FoodIcon';
 import ScoreRing from '../components/ScoreRing';
 import CompareSlider from '../components/CompareSlider';
@@ -147,6 +147,23 @@ export default function Result() {
   const showTomorrow = verdict !== 'good' && foodToAdd;
   const foodName = foodToAdd ? (foodById(foodToAdd.group === 'eggs' ? 'egg' : foodToAdd.group === 'legumes' ? 'dal' : foodToAdd.group === 'flesh' ? 'small-fish' : foodToAdd.group === 'dairy' ? 'milk' : 'sweet-potato')?.name[lang] ?? GROUP_LABEL[foodToAdd.group][lang]) : '';
 
+  // ---- Full Details (deterministic, library data only — no AI text) ----
+  const PRIMARY_FOOD: Record<string, string> = { eggs: 'egg', legumes: 'dal', flesh: 'small-fish', vit_a_fruits_veg: 'sweet-potato', dairy: 'milk' };
+  const MEAL_FOOD: Record<string, string> = { grains: 'rice', eggs: 'egg', legumes: 'dal', flesh: 'small-fish', vit_a_fruits_veg: 'pumpkin', dairy: 'yogurt', other_fruits_veg: 'banana' };
+  const plateFoods = (initial.foods ?? []).filter((f) => groups.includes(f.group));
+  const addNowFood = foodToAdd ? foodById(PRIMARY_FOOD[foodToAdd.group] ?? '') : undefined;
+  const alternatives = foodToAdd
+    ? LIBRARY_FOODS.filter((f) => f.group === foodToAdd.group && f.id !== addNowFood?.id).slice(0, 2)
+    : [];
+  const nextMealIds: string[] = [];
+  if (missing.includes('grains')) nextMealIds.push(MEAL_FOOD.grains);
+  for (const p of PRIORITY) if (missing.includes(p.group)) nextMealIds.push(MEAL_FOOD[p.group]);
+  if (nextMealIds.length === 0 && missing.includes('other_fruits_veg')) nextMealIds.push(MEAL_FOOD.other_fruits_veg);
+  const nextMeal = nextMealIds.slice(0, 4).map((id) => foodById(id)).filter((f) => !!f);
+  const summaryText = (foodToAdd
+    ? t('fdSummaryAdd').replace('{fix}', foodName)
+    : t('fdSummaryGood')).replace('{score}', `${num(score)}/${num(8)}`);
+
   return (
     <div className="w-full px-4 sm:px-8 lg:px-16 2xl:px-24 py-5 lg:py-10 flex flex-col gap-5 lg:gap-8 relative">
       <Confetti show={verdict === 'good'} />
@@ -230,6 +247,133 @@ export default function Result() {
           </button>
         </section>
       </div>
+
+      {/* Full Details — written explanation, expanded by default, library data only */}
+      <section className="glass-card rounded-[2rem] p-5 lg:p-6 flex flex-col gap-6">
+        <h2 className="text-2xl font-extrabold text-leaf">{t('fullDetailsTitle')}</h2>
+
+        {/* 1. On the plate */}
+        <div>
+          <h3 className="flex items-center gap-2.5 text-xl font-bold text-leaf">
+            <span className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#DCFCE7', color: '#166534' }}>
+              <UtensilsCrossed size={21} aria-hidden />
+            </span>
+            {t('fdOnPlate')}
+          </h3>
+          {plateFoods.length > 0 ? (
+            <ul className="flex flex-col gap-2 mt-3">
+              {plateFoods.map((f, i) => {
+                const lib = foodById(matchFoodId(f.name) ?? '');
+                return (
+                  <li key={`${f.name}-${i}`} className="rounded-2xl bg-white/60 border border-ink/10 px-4 py-3 min-h-14 flex items-center gap-3">
+                    <FoodIcon group={f.group} size={24} className="text-primary shrink-0" />
+                    <span className="text-lg font-semibold grow">{lib?.name[lang] ?? f.name}</span>
+                    <span className="text-xs font-bold rounded-full px-2.5 py-1 bg-primary/15 text-leaf text-right">{GROUP_LABEL[f.group]?.[lang] ?? f.group}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : groups.length > 0 ? (
+            <ul className="flex flex-wrap gap-2 mt-3">
+              {groups.map((g) => (
+                <li key={g} className="rounded-full bg-primary/15 text-leaf font-semibold px-3.5 py-2 flex items-center gap-2">
+                  <FoodIcon group={g} size={18} /> {GROUP_LABEL[g][lang]}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-lg text-ink/70 mt-3">{t('fdEmptyFoods')}</p>
+          )}
+        </div>
+
+        {/* 2. What's missing */}
+        <div>
+          <h3 className="flex items-center gap-2.5 text-xl font-bold text-leaf">
+            <span className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#FFEDD5', color: '#9A3412' }}>
+              <ListChecks size={21} aria-hidden />
+            </span>
+            {t('fdMissing')}
+          </h3>
+          {missing.length > 0 ? (
+            <ul className="flex flex-col gap-2 mt-3">
+              {missing.map((g) => (
+                <li key={g} className="rounded-2xl bg-white/60 border border-ink/10 px-4 py-3 flex items-start gap-3">
+                  <FoodIcon group={g} size={24} className="text-ink/40 shrink-0 mt-0.5" />
+                  <span>
+                    <span className="block text-lg font-semibold">{GROUP_LABEL[g][lang]}</span>
+                    <span className="block text-ink/70">{GROUP_BENEFIT[g][lang]}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-lg font-semibold text-leaf mt-3">{t('fdNoneMissing')}</p>
+          )}
+        </div>
+
+        {/* 3. Add now */}
+        <div>
+          <h3 className="flex items-center gap-2.5 text-xl font-bold text-leaf">
+            <span className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#FEF9C3', color: '#854D0E' }}>
+              <PlusCircle size={21} aria-hidden />
+            </span>
+            {t('fdAddNow')}
+          </h3>
+          {foodToAdd && addNowFood ? (
+            <div className="rounded-2xl bg-amber-warm/20 border-2 border-amber-warm px-4 py-3.5 mt-3">
+              <p className="text-lg font-bold flex items-center gap-2.5 flex-wrap">
+                <FoodIcon group={foodToAdd.group} size={26} className="text-amber-warm" />
+                {addNowFood.name[lang]}
+                <span className="font-semibold text-ink/70">— {GROUP_PORTION[foodToAdd.group][lang]}</span>
+              </p>
+              {alternatives.length > 0 && (
+                <p className="text-ink/75 mt-1.5">
+                  {t('fdAlternatives')} {alternatives.map((f) => f.name[lang]).join(', ')}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-lg text-ink/75 mt-3">{t('fdAddNowGood')}</p>
+          )}
+        </div>
+
+        {/* 4. Next meal idea */}
+        <div>
+          <h3 className="flex items-center gap-2.5 text-xl font-bold text-leaf">
+            <span className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#E0F2FE', color: '#075985' }}>
+              <Utensils size={21} aria-hidden />
+            </span>
+            {t('fdNextMeal')}
+          </h3>
+          {nextMeal.length > 0 ? (
+            <>
+              <p className="text-lg font-semibold mt-3">
+                {t('fdNextMealLine')} {nextMeal.map((f) => f.name[lang]).join(' + ')}
+              </p>
+              <ul className="flex flex-wrap gap-2 mt-2.5">
+                {nextMeal.map((f) => (
+                  <li key={f.id} className="rounded-full bg-white/70 border border-ink/10 font-semibold px-3.5 py-2 flex items-center gap-2">
+                    <FoodIcon group={f.group} size={18} className="text-primary" /> {f.name[lang]}
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className="text-lg text-ink/75 mt-3">{t('fdNextMealGood')}</p>
+          )}
+        </div>
+
+        {/* 5. Summary */}
+        <div className="rounded-2xl px-5 py-4 flex items-start gap-3" style={{ background: 'linear-gradient(100deg, rgba(20,83,45,0.12), rgba(30,122,70,0.08))' }}>
+          <span className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-white/70" style={{ color: '#B45309' }}>
+            <Sparkles size={21} aria-hidden />
+          </span>
+          <div>
+            <h3 className="text-xl font-bold text-leaf">{t('fdSummary')}</h3>
+            <p className="text-lg font-semibold leading-relaxed mt-0.5">{summaryText}</p>
+          </div>
+        </div>
+      </section>
 
       {/* Calorie meter — static data only, always labelled approximate (Phase 3) */}
       <section className="glass-card rounded-3xl p-5 lg:p-6 flex flex-col gap-3">

@@ -81,6 +81,14 @@ const bn: Dict = {
   faqQ3: 'এটা কি ডাক্তারের পরামর্শ?', faqA3: 'না। এটি সাধারণ পুষ্টি তথ্য। অসুখ বা বাড়ন্ত সমস্যা হলে ডাক্তার বা স্বাস্থ্যকর্মীকে দেখান।',
   faqQ4: 'ক্যালরি কি একদম ঠিক?', faqA4: 'না, ক্যালরি আনুমানিক ধারণা মাত্র — সাধারণ খাবারের তথ্য থেকে হিসাব করা।',
   faqQ5: 'অ্যাকাউন্ট কি লাগবেই?', faqA5: 'না। অতিথি হিসেবে সব ব্যবহার করা যায়। অ্যাকাউন্ট শুধু নিজের ইতিহাস রাখতে চাইলে।',
+  fullDetailsTitle: 'সব বিস্তারিত', fdOnPlate: 'থালায় যা আছে', fdMissing: 'যা কমতি আছে', fdAddNow: 'এখন যোগ করো',
+  fdNextMeal: 'পরের বেলার খাবার', fdSummary: 'সারকথা', fdAlternatives: 'অথবা দিতে পারো:',
+  fdNextMealLine: 'পরের বেলা:', fdNoneMissing: 'কিছুই কমতি নেই — সব ধরনের খাবার আছে!',
+  fdAddNowGood: 'আজ আর কিছু যোগ করতে হবে না। প্রতিদিন এভাবেই নানা রঙের খাবার দাও।',
+  fdNextMealGood: 'পরের বেলায়ও এভাবেই নানা রঙের খাবার দাও।',
+  fdEmptyFoods: 'কোনো খাবার চেনা যায়নি — ওপরের আইকনে চাপ দিয়ে ঠিক করে নাও।',
+  fdSummaryGood: 'দারুণ! আজকের থালায় {score} ধরনের খাবার আছে। এভাবেই চালিয়ে যাও।',
+  fdSummaryAdd: 'আজকের থালায় {score} ধরনের খাবার আছে। সবচেয়ে জরুরি কাজ: {fix} যোগ করা।',
 };
 const en: Dict = {
   appName: 'PushtiPlate', tagline: "Today's plate, tomorrow's strength",
@@ -145,6 +153,14 @@ const en: Dict = {
   faqQ3: 'Is this medical advice?', faqA3: 'No. This is general nutrition information. For illness or poor growth, see a doctor or health worker.',
   faqQ4: 'Are the calories exact?', faqA4: 'No, calories are an approximate idea, worked out from standard food data.',
   faqQ5: 'Do I need an account?', faqA5: 'No. Everything works as a guest. An account is only for keeping your own history.',
+  fullDetailsTitle: 'Full details', fdOnPlate: 'On the plate', fdMissing: "What's missing", fdAddNow: 'Add now',
+  fdNextMeal: 'Next meal idea', fdSummary: 'Summary', fdAlternatives: 'Or you can give:',
+  fdNextMealLine: 'Next meal:', fdNoneMissing: 'Nothing is missing — every kind of food is here!',
+  fdAddNowGood: 'No need to add anything today. Keep giving many-coloured foods like this every day.',
+  fdNextMealGood: 'Keep giving many-coloured foods like this at the next meal too.',
+  fdEmptyFoods: 'No food was recognised — tap the icons above to fix it.',
+  fdSummaryGood: "Great! Today's plate has {score} kinds of food. Keep it up.",
+  fdSummaryAdd: "Today's plate has {score} kinds of food. The most important step: add {fix}.",
 };
 const hi: Dict = {
   appName: 'पुष्टि थाली', tagline: 'आज की थाली, कल की ताकत',
@@ -209,6 +225,14 @@ const hi: Dict = {
   faqQ3: 'क्या यह डॉक्टर की सलाह है?', faqA3: 'नहीं। यह सामान्य पोषण जानकारी है। बीमारी या कम बढ़त पर डॉक्टर या स्वास्थ्य कर्मी को दिखाएँ।',
   faqQ4: 'क्या कैलोरी बिल्कुल सही है?', faqA4: 'नहीं, कैलोरी एक अनुमानित अंदाज़ा है — सामान्य खाद्य आँकड़ों से हिसाब किया गया।',
   faqQ5: 'क्या खाता ज़रूरी है?', faqA5: 'नहीं। सब कुछ मेहमान के रूप में चलता है। खाता सिर्फ़ अपना इतिहास रखने के लिए है।',
+  fullDetailsTitle: 'पूरी जानकारी', fdOnPlate: 'थाली में क्या है', fdMissing: 'क्या कमी है', fdAddNow: 'अभी जोड़ो',
+  fdNextMeal: 'अगली बार का खाना', fdSummary: 'सारांश', fdAlternatives: 'या दे सकते हो:',
+  fdNextMealLine: 'अगली बार:', fdNoneMissing: 'कोई कमी नहीं — हर तरह का खाना है!',
+  fdAddNowGood: 'आज कुछ और जोड़ने की ज़रूरत नहीं। हर दिन ऐसे ही कई रंगों का खाना दो।',
+  fdNextMealGood: 'अगली बार भी ऐसे ही कई रंगों का खाना दो।',
+  fdEmptyFoods: 'कोई खाना पहचाना नहीं गया — ऊपर के आइकन दबाकर ठीक करो।',
+  fdSummaryGood: 'बहुत बढ़िया! आज की थाली में {score} तरह का खाना है। ऐसे ही जारी रखो।',
+  fdSummaryAdd: 'आज की थाली में {score} तरह का खाना है। सबसे ज़रूरी काम: {fix} जोड़ना।',
 };
 const STRINGS: Record<Lang, Dict> = { bn, en, hi };
 
